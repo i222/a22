@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"strict": false,
+		"jsx": "preserve",
+		"sourceMap": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"skipLibCheck": false,
+		"types": [
+			"vite/client",
+			"vue",
+			"naive-ui"
+		],
+		"baseUrl": ".",
+		"allowJs": true
+	},
+	"include": [
+		"src/**/*",
+		// "src/shared/**/*",
+	],
+	"exclude": [
+		"node_modules",
+		"electron"
+	]
+}
