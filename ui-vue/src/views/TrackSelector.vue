@@ -1,3 +1,4 @@
+<!-- ui-vue/src/views/TrackSelector.vue -->
 <template>
 	<n-list bordered>
 		<n-list-item v-for="(track, index) in tracks" :key="index">
@@ -12,7 +13,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { MediaFile } from '../../shared/types/media-file';
+import { MediaFile } from 'a22-share';
 
 const props = defineProps<{
 	tracks: MediaFile.Track[];

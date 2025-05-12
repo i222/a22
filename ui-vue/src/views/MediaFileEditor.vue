@@ -65,9 +65,9 @@
 
 <script setup lang="ts">
 import { ref, computed, defineProps, defineEmits } from 'vue';
-import { MediaFile } from '../../shared/types/media-file';
+import { MediaFile } from 'a22-shared';
 import TrackSelector from './TrackSelector.vue';
-import { Formatters } from '../lib/utils/formatters';
+import { Formatters } from 'a22-shared';
 import { RefreshOutline } from '@vicons/ionicons5';
 import { cloneDeep } from 'lodash';
 
