@@ -1,0 +1,61 @@
+.home-container {
+  margin-top: 20px;
+}
+
+.toolbar {
+  margin-bottom: 12px;
+}
+
+.list-item-header {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
+}
+
+.header-left {
+  padding-top: 4px;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.file-name {
+  font-weight: 600;
+}
+
+.header-right {
+  width: 180px;
+  height: 100px;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.header-right img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.no-preview {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+.collapse-body {
+  padding-top: 8px;
+}
+
+.edit-button {
+  margin-top: 10px;
+  text-align: right;
+}
