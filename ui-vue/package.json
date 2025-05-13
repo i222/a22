@@ -4,6 +4,7 @@
 	"scripts": {
 		"libs:up": "yarn upgrade a22-shared --latest",
 		"dev": "vite",
+		"build:prod": "yarn libs:up && yarn && vite build",
 		"build": "vite build",
 		"preview": "vite preview"
 	},
