@@ -1,3 +1,16 @@
+# some tmp files
+mocks/
+info/
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows system files (на всякий случай)
+Thumbs.db
+ehthumbs.db
+
 # Logs
 logs
 *.log

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { ElectronBridge, validateElectronBridge } from 'a22-shared';
 import { RIPIT_BRIDGE_NAME } from 'a22-shared';
-// import { mockElectronBridge } from '../mocks/mockElectronBridge'; // Uncomment for development/testing
+// import { mockElectronBridge } from '../../mocks/mockElectronBridge'; // Uncomment for development/testing
 
 // Define the shape of the context
 interface ElectronBridgeContextType {
@@ -20,8 +20,7 @@ export const ElectronBridgeProvider = ({ children }: { children: ReactNode }) =>
 	const electronBridge = window[RIPIT_BRIDGE_NAME] as ElectronBridge;
 	// const electronBridge = mockElectronBridge as ElectronBridge;
 
-
-	// ✅ For development or testing, you can use a mock:
+	// For development or testing, you can use a mock:
 	// const electronBridge = mockElectronBridge;
 
 	if (!electronBridge) {
