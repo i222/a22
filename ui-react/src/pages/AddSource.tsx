@@ -144,17 +144,20 @@ export const AddSource: React.FC = () => {
 				<Alert
 					message="Request is being processed..."
 					description={
-						<Space direction="vertical">
-							<TextArea value={progress} readOnly />
-							<Button danger onClick={handleCancel}>
-								Cancel request
-							</Button>
+						<Space direction="vertical" style={{ width: '100%' }}>
+							<div className="truncated-text">
+								{progress}
+							</div>
+							<div className="cancel-button-container">
+								<Button danger onClick={() => console.log('Request cancelled')}>
+									Cancel request
+								</Button>
+							</div>
 						</Space>
 					}
 					type="success"
 					showIcon
 					closable
-					onClose={() => setProgress(null)}
 				/>
 			)}
 
