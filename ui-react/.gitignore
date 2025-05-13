@@ -1,3 +1,19 @@
+# ------------------------------------------------------------------------------
+# Local setup to ignore changes inside mocks/ directory
+# This affects only your local Git — useful for test data or local mock configs.
+# ------------------------------------------------------------------------------
+
+# Hide changes to already tracked files (run in terminal):
+# git ls-files mocks/ | xargs git update-index --assume-unchanged
+
+# List files currently marked as "assume unchanged":
+# git ls-files -v | grep '^[a-z]'
+
+# Re-enable tracking for a specific file (if needed):
+# git update-index --no-assume-unchanged mocks/example.json
+
+# Ignore newly created files in mocks/ (untracked ones):
+# This prevents them from showing up in `git status` or being accidentally committed.
 mocks/
 
 # macOS system files
