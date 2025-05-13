@@ -1,0 +1,27 @@
+{
+	"name": "a22-multy-app-ui-vue",
+	"version": "0.1.0",
+	"scripts": {
+		"libs:up": "yarn upgrade a22-shared --latest",
+		"dev": "vite",
+		"build:prod": "yarn libs:up && yarn && vite build",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@vicons/ionicons5": "^0.13.0",
+		"a22-shared": "file:../shared",
+		"filesize": "^10.1.6",
+		"lodash-es": "^4.17.21",
+		"mitt": "^3.0.1",
+		"naive-ui": "^2.41.0",
+		"uuid": "^11.1.0",
+		"vue": "^3.4.0",
+		"vue-router": "^4.5.0"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^5.2.3",
+		"@vue/compiler-sfc": "^3.4.0",
+		"vite": "^5.2.0"
+	}
+}
