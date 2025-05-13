@@ -4,11 +4,12 @@
 	"main": "dist/main.js",
 	"scripts": {
 		"libs:up": "yarn upgrade a22-shared --latest",
-		"build:c": "yarn libs:up && yarn && yarn tsc",
+		"build": "yarn libs:up && yarn && yarn tsc",
+		"build:prod": "yarn libs:up && yarn && yarn tsc",
 		"go": "(electron .) 2>&1 | grep -v 'eglQueryDeviceAttribEXT'",
 		"go2": "yarn build && yarn tsc && electron .",
 		"go3": "(yarn build && yarn tsc && electron .) 2>&1 | grep -v 'eglQueryDeviceAttribEXT'",
-		"release:mac": "yarn build:c && electron-builder --mac"
+		"release:mac": "yarn build:prod && electron-builder --mac"
 	},
 	"keywords": [],
 	"author": "",

@@ -5,6 +5,7 @@
     "libs:up": "yarn upgrade a22-shared --latest",
     "dev": "vite",
     "build": "vite build",
+    "build:prod": "yarn libs:up && yarn && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
