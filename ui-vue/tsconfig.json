@@ -25,8 +25,8 @@
 		"allowJs": true
 	},
 	"include": [
-		"src/**/*",
-		// "src/shared/**/*",
+		"src",
+		"mocks",
 	],
 	"exclude": [
 		"node_modules",
