@@ -21,6 +21,7 @@ import { MediaFile } from 'a22-shared';
 import MediaFileDetails from './MediaFileDetails';
 import { useElectronBridge } from '../contexts/electronBridgeContext';
 import './Home.css';
+import { stopPropagation } from '../utils/events';
 
 const { Paragraph } = Typography;
 
@@ -164,6 +165,7 @@ const Home: React.FC = () => {
 											<div className="header-left">
 												<Checkbox
 													checked={isSelected(file.id)}
+													onClick={stopPropagation}
 													onChange={() => toggleSelectFile(file.id)}
 												/>
 											</div>
@@ -181,17 +183,23 @@ const Home: React.FC = () => {
 															type="text"
 															size="small"
 															icon={<CopyOutlined />}
-															onClick={() => copyUrl(file.source.webpageUrl)}
+															onClick={(e) => {
+																copyUrl(file.source.webpageUrl);
+																stopPropagation(e);
+															}}
 														/>
 													</Tooltip>
-													<Tooltip title="Open in browser">
+													{/* <Tooltip title="Open in browser">
 														<Button
 															type="text"
 															size="small"
 															icon={<EyeOutlined />}
-															onClick={() => openUrl(file.source.webpageUrl)}
+															onClick={(e) => {
+																openUrl(file.source.webpageUrl);
+																stopPropagation(e);
+															}}
 														/>
-													</Tooltip>
+													</Tooltip> */}
 												</Space>
 												<Space size="small" wrap>
 													{file.trackIds.map((track) => (
