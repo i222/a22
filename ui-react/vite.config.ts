@@ -6,10 +6,21 @@ export default defineConfig({
   build: {
     sourcemap: true,
     outDir: './dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          vendor: ['lodash-es', 'filesize', 'mitt', 'uuid'],
+          antd: ['antd'],
+        },
+      },
+    }
   },
   base: './',
   optimizeDeps: {
     include: ['react', 'react-dom'],
   },
+
 });

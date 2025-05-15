@@ -1,25 +1,42 @@
-import React from 'react';
-import { Button, Descriptions, Space, Tag, Tooltip, Typography } from 'antd';
-import { CopyOutlined } from '@ant-design/icons';
-import { MediaFile } from 'a22-shared';
+import React, { useState } from 'react';
+import {
+	Button,
+	Descriptions,
+	Space,
+	Tag,
+	Tooltip,
+	Typography,
+	message,
+	Drawer,
+} from 'antd';
+import { CopyOutlined, EditOutlined } from '@ant-design/icons';
+import { MediaFile, Formatters } from 'a22-shared';
 import { filesize } from 'filesize';
-import { message } from 'antd';
-import { Formatters } from 'a22-shared'; // Assuming this utility is available
-import './MediaFileDetails.css'; // Assuming styles are in a separate CSS file
+import MediaFileEditor from './MediaFileEditor';
+import './MediaFileDetails.css';
 
-const { Paragraph } = Typography;
+const { Paragraph, Title } = Typography;
 
 interface MediaFileDetailsProps {
 	file: MediaFile.Data;
 }
 
 const MediaFileDetails: React.FC<MediaFileDetailsProps> = ({ file }) => {
-	// Check if a track is selected
+	const [editorOpen, setEditorOpen] = useState(false);
+
+	// Ensure that tracks exist and is an array
+	const tracks = file?.source?.tracks ?? [];
+
+	/**
+	 * Checks whether a formatId is selected
+	 */
 	const isSelectedTrack = (formatId: string): boolean => {
 		return file.trackIds.map((track) => track.formatId).includes(formatId);
 	};
 
-	// Determine track type for tag color
+	/**
+	 * Returns color category for a track tag
+	 */
 	const getTrackType = (track: MediaFile.Track): 'success' | 'warning' | 'danger' | '' => {
 		if (track.hasVideo && track.hasAudio) return 'danger';
 		if (track.hasVideo) return 'success';
@@ -27,40 +44,62 @@ const MediaFileDetails: React.FC<MediaFileDetailsProps> = ({ file }) => {
 		return '';
 	};
 
-	// Format file size
+	/**
+	 * Formats file size using `filesize`
+	 */
+	// src/pages/MediaFileDetails.tsx
 	const formatFileSize = (size?: number, defaultValue = '-'): string => {
-		return size ? filesize(size) : defaultValue;
+		const sizeFormatted = filesize(size);
+		return typeof sizeFormatted === 'string' ? sizeFormatted : defaultValue;
 	};
 
-	// Copy text to clipboard
+
+	/**
+	 * Copies a string to clipboard with user feedback
+	 */
 	const copyUrl = (text: string) => {
 		navigator.clipboard
 			.writeText(text)
-			.then(() => {
-				message.success('Link copied');
-			})
-			.catch(() => {
-				message.error('Copy error');
-			});
+			.then(() => message.success('Link copied'))
+			.catch(() => message.error('Copy error'));
 	};
 
-	// Format duration
+	/**
+	 * Formats duration in seconds to a human-readable string
+	 */
 	const getDuration = (seconds: number | undefined) => {
 		const d = Formatters.toDuration(seconds);
 		return d ? `${d} (${seconds}s)` : '-';
 	};
 
+	/**
+	 * Handles saving from editor
+	 */
+	const handleSave = (updated: MediaFile.Data) => {
+		console.log('Saved data:', updated);
+		setEditorOpen(false);
+	};
+
 	return (
 		<div className="media-file-details-container">
 			<Space direction="vertical" style={{ width: '100%' }}>
-				{/* Media File Information */}
-				<Descriptions
-					title="Media File Information"
-					size="small"
-					bordered
-					styles={{ label: { width: '120px' }, }}
-					column={3}
-				>
+				{/* Header with Edit button */}
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+					<Title level={5} style={{ margin: 0 }}>
+						Media File Information
+					</Title>
+					<Button
+						type="primary"
+						size="small"
+						icon={<EditOutlined />}
+						onClick={() => setEditorOpen(true)}
+					>
+						Edit
+					</Button>
+				</div>
+
+				{/* Basic metadata */}
+				<Descriptions size="small" bordered column={3} styles={{ label: { width: '120px' } }}>
 					<Descriptions.Item label="Info">{'-'}</Descriptions.Item>
 					<Descriptions.Item label="Size">{formatFileSize(file.size)}</Descriptions.Item>
 					<Descriptions.Item label="Status">{file.status || 'Added'}</Descriptions.Item>
@@ -69,14 +108,8 @@ const MediaFileDetails: React.FC<MediaFileDetailsProps> = ({ file }) => {
 					</Descriptions.Item>
 				</Descriptions>
 
-				{/* Source Information */}
-				<Descriptions
-					title="Source Information"
-					size="small"
-					bordered
-					styles={{ label: { width: '120px' }, }}
-					column={3}
-				>
+				{/* Source metadata */}
+				<Descriptions title="Source Information" size="small" bordered column={3} styles={{ label: { width: '120px' } }}>
 					<Descriptions.Item label="Source Url" span={3}>
 						<Paragraph ellipsis={{ rows: 2 }}>{file.source.webpageUrl}</Paragraph>
 					</Descriptions.Item>
@@ -103,21 +136,25 @@ const MediaFileDetails: React.FC<MediaFileDetailsProps> = ({ file }) => {
 					</Descriptions.Item>
 					<Descriptions.Item label="Tracks" span={3}>
 						<Space size="small" wrap>
-							{file.source.tracks.map((track) => (
-								<Tooltip
-									key={track.formatId}
-									title={`${track.format} / ${track.ext} / ${formatFileSize(track.filesize, 'stream')}`}
-									placement="bottom"
-								>
-									<Tag
-										color={getTrackType(track)}
-										bordered={isSelectedTrack(track.formatId)}
-										icon={isSelectedTrack(track.formatId) ? <CheckmarkCircle /> : null}
+							{tracks.length > 0 ? (
+								tracks.map((track) => (
+									<Tooltip
+										key={track.formatId}
+										title={`${track.format} / ${track.ext} / ${formatFileSize(track.filesize, 'stream')}`}
+										placement="bottom"
 									>
-										{track.format}
-									</Tag>
-								</Tooltip>
-							))}
+										<Tag
+											color={getTrackType(track)}
+											bordered={isSelectedTrack(track.formatId)}
+											icon={isSelectedTrack(track.formatId) ? <CheckmarkCircle /> : null}
+										>
+											{track.format}
+										</Tag>
+									</Tooltip>
+								))
+							) : (
+								<Tag color="gray">No tracks available</Tag>
+							)}
 						</Space>
 					</Descriptions.Item>
 					<Descriptions.Item label="Description">
@@ -125,11 +162,23 @@ const MediaFileDetails: React.FC<MediaFileDetailsProps> = ({ file }) => {
 					</Descriptions.Item>
 				</Descriptions>
 			</Space>
+
+			{/* Standard Drawer with editor inside */}
+			<Drawer
+				title="Edit Media File"
+				placement="right"
+				open={editorOpen}
+				onClose={() => setEditorOpen(false)}
+				width="90%" // Use percentage-based width
+				destroyOnHidden // Clean up on close
+				maskClosable
+			>
+				<MediaFileEditor data={file} isNew={false} onSave={handleSave} onClose={() => setEditorOpen(false)} />
+			</Drawer>
 		</div>
 	);
 };
 
-// Placeholder icon component for track tags
 const CheckmarkCircle: React.FC = () => <span>✓</span>;
 
 export default MediaFileDetails;

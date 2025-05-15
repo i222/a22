@@ -228,11 +228,11 @@ const Home: React.FC = () => {
 									children: (
 										<div className="collapse-body">
 											<MediaFileDetails file={file} />
-											<div className="edit-button">
+											{/* <div className="edit-button">
 												<Button size="small" onClick={() => configureFile(file)}>
 													Edit
 												</Button>
-											</div>
+											</div> */}
 										</div>
 									),
 								},
