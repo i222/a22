@@ -1,12 +1,15 @@
 {
   "name": "a22-shared",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "yarn && yarn tsc"
   },
-  "dependencies": {},
+  "dependencies": {
+    "uuid": "^11.1.0",
+    "lodash-es": "^4.17.21"
+  },
   "devDependencies": {
     "typescript": "^5.0.0"
   },

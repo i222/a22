@@ -6,7 +6,11 @@
  * single videos and playlists. It includes media metadata and available tracks.
  */
 
+import { v4 as uuidv4 } from 'uuid';
+import { cloneDeep } from 'lodash-es';
+
 export namespace MediaFile {
+	export const DATA_CURRENT_FORMAT_VERSION = '1'; // 2025.05.05
 
 	const statusArray = ['Added', 'Downloading', 'Loaded', 'Error', 'Archived'] as const;
 	export type Status = typeof statusArray[number];
@@ -556,6 +560,34 @@ export namespace MediaFile {
 		};
 	};
 
+	/**
+	 * 
+	 * @param fileName 
+	 * @param trackIds - selected tracks
+	 * @param source 
+	 * @returns 
+	 */
+	export function create(
+		fileName: string,
+		trackIds: Array<MediaFile.Track>,
+		source: MediaFile.SourceFile | null
+	): MediaFile.Data {
+		const id = uuidv4();
 
+		if (!source) {
+			throw new Error('Cannot create MediaFile.Data, not null source is expected');
+		}
+
+		return {
+			id,
+			version: DATA_CURRENT_FORMAT_VERSION,
+			fileName,
+			status: 'Added',
+			trackIds: cloneDeep(trackIds),
+			size: 0,
+			created: 0, // created media file
+			source: cloneDeep(source),
+		}
+	}
 
 }
