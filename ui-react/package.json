@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "libs:up": "yarn upgrade a22-shared --latest",
-    "dev": "vite",
+    "dev": "vite --mode mock",
     "build": "vite build",
     "build:prod": "yarn libs:up && yarn && vite build",
     "preview": "vite preview"
