@@ -30,14 +30,10 @@ export const AddSource: React.FC = () => {
 					break;
 				case 'result':
 					const source = payload.payload as MediaFile.SourceFile;
-					setMediaData({
-						id: uuidv4(),
-						fileName: `${source.title} [${source.extractor}][${source.id}]`,
-						source,
-						trackIds: [],
-						version: '1',
-						status: 'Added',
-					});
+					const fileName = `${source.title} [${source.extractor}][${source.id}]`; // initial
+					const data = MediaFile.create(fileName, [], source );
+					console.log('[UI][AddSource][loaded] create media file: ', data)
+					setMediaData(data);
 					resetState();
 					break;
 				case 'error':
@@ -93,14 +89,16 @@ export const AddSource: React.FC = () => {
 		}
 	};
 
-	const handleSave = async () => {
-		if (!mediaData) return;
+	const handleSave = async (updatedData) => {
+		console.log('[UI][AddSource] Save', updatedData);
+		if (!updatedData) return;
 
 		try {
-			const success = await bridge.addSource(mediaData);
+			const success = await bridge.addSource(updatedData);
 			if (!success) {
 				setError('Failed to save source data.');
 			}
+			close();
 		} catch (err: any) {
 			setError('Error saving source: ' + err.message);
 		}
@@ -168,10 +166,11 @@ export const AddSource: React.FC = () => {
 					<MediaFileEditor
 						data={mediaData}
 						isNew={true}
-						onSave={(updatedData) => {
-							// ADD LOGIC !
-							console.log('Updated data:', updatedData);
-						}}
+						// onSave={(updatedData) => {
+						// 	handleSave(updatedData);
+						// 	console.log('Updated data:', updatedData);
+						// }}
+						onSave={handleSave}
 					/>
 				</div>
 			) : (

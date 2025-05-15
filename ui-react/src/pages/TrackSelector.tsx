@@ -13,7 +13,7 @@ interface Props {
 
 // Presets map common selections to formatIds
 const presets: Record<string, string[]> = {
-	'720p': ['137', '140'],
+	'720p': ['136', '140'],
 	'1080p': ['137', '140'],
 	'audio': ['140'],
 };
