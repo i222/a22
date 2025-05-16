@@ -28,6 +28,7 @@ export namespace YDBMappers {
 	export function mapToSourceFile(json: any): MediaFile.SourceFile {
 		const extractor = json.extractor ?? json.extractor_key ?? 'unknown';
 		const tracks = mapToTracks(json.formats || [], extractor);
+		// console.log('[Tracks]', tracks);
 		const eData: MediaFile.ESource = 'youtube' === extractor
 			? mapSourceFileExtYoutube(json)
 			: { __type: 'none' }; // ADD HERE mappers for youtube etc.
@@ -56,27 +57,33 @@ export namespace YDBMappers {
 	 * @returns Mapped array of MediaFile.Track objects.
 	 */
 	function mapToTracks(formats: any[], extractor: string): MediaFile.Track[] {
-		return formats.map((f: any) => ({
-			formatId: f.format_id,
-			format: f.format ?? null,
-			ext: f.ext,
-			vcodec: f.vcodec ?? null,
-			acodec: f.acodec ?? null,
-			width: f.width ?? null,
-			height: f.height ?? null,
-			fps: f.fps ?? null,
-			tbr: f.tbr ?? null,
-			abr: f.abr ?? null,
-			vbr: f.vbr ?? null,
-			asr: f.asr ?? null,
-			filesize: f.filesize ?? f.filesize_approx ?? null,
-			url: f.url ?? null,
-			hasAudio: f.vcodec === 'none' && f.acodec !== 'none',
-			hasVideo: f.vcodec !== 'none',
-			eData: 'youtube' === extractor // ADD HERE mappers for youtube etc.
+		return formats.map((f: any) => {
+			const eData = 'youtube' === extractor // ADD HERE mappers for youtube etc.
 				? mapTrackExtYoutube(f)
-				: { __type: 'none' },
-		}));
+				: { __type: 'none' }
+				;
+			// console.log('[eData]', eData);
+
+			return {
+				formatId: f.format_id,
+				format: f.format ?? null,
+				ext: f.ext,
+				vcodec: f.vcodec ?? null,
+				acodec: f.acodec ?? null,
+				width: f.width ?? null,
+				height: f.height ?? null,
+				fps: f.fps ?? null,
+				tbr: f.tbr ?? null,
+				abr: f.abr ?? null,
+				vbr: f.vbr ?? null,
+				asr: f.asr ?? null,
+				filesize: f.filesize ?? f.filesize_approx ?? null,
+				url: f.url ?? null,
+				hasAudio: f.vcodec === 'none' && f.acodec !== 'none',
+				hasVideo: f.vcodec !== 'none',
+				eData
+			}
+		});
 	}
 
 

@@ -25,7 +25,10 @@ export const TrackSchema = z.object({
 	asr: z.number().nullable().optional(),
 	filesize: z.number().nullable().optional(),
 	eData: z.any().optional()
-		.transform((d) => d?._type ? d : { _type: 'none' }), // any data with _type pass
+		.transform((d) => {
+			console.log('[Zod][Track] eData', d)
+			return d?.__type ? d : { __type: 'none' }
+		}), // any data with _type pass
 }).strict();
 
 // Schema for MediaFile.SourceFile
@@ -44,7 +47,7 @@ export const SourceFileSchema = z.object({
 	tags: z.array(z.string()).optional(),
 	// channelId: z.string().optional(), //UrlInfo
 	eData: z.any().optional()
-		.transform((d) => d?._type ? d : { _type: 'none' }), // any data with _type pass
+		.transform((d) => d?.__type ? d : { __type: 'none' }), // any data with _type pass
 }).strict();
 
 // Schema for MediaFile.Data
