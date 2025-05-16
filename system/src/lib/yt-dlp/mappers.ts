@@ -64,6 +64,9 @@ export namespace YDBMappers {
 				;
 			// console.log('[eData]', eData);
 
+			const br = f.tbr ? f.tbr : (f.vbr ? f.vbr : (f.abr ? f.abr : null));
+			console.log('[br]', br, f);
+
 			return {
 				formatId: f.format_id,
 				format: f.format ?? null,
@@ -77,6 +80,7 @@ export namespace YDBMappers {
 				abr: f.abr ?? null,
 				vbr: f.vbr ?? null,
 				asr: f.asr ?? null,
+				br,
 				filesize: f.filesize ?? f.filesize_approx ?? null,
 				url: f.url ?? null,
 				hasAudio: f.vcodec === 'none' && f.acodec !== 'none',
@@ -215,7 +219,7 @@ export namespace YDBMappers {
 			height: get(data, 'height'),
 			quality: get(data, 'quality'),
 			has_drm: get(data, 'has_drm'),
-			tbr: get(data, 'tbr'),
+			// tbr: get(data, 'tbr'),
 			filesize_approx: get(data, 'filesize_approx'),
 			url: get(data, 'url'),
 			width: get(data, 'width'),

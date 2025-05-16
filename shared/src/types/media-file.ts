@@ -70,6 +70,9 @@ export namespace MediaFile {
 		/** Video bitrate (kbps) */
 		vbr?: number;
 
+		/** Bitrate (kbps) computed */
+		br?: number;
+
 		/** Audio sample rate (Hz) */
 		asr?: number;
 

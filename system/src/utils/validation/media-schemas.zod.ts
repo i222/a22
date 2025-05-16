@@ -23,10 +23,10 @@ export const TrackSchema = z.object({
 	abr: z.number().nullable().optional(),
 	vbr: z.number().nullable().optional(),
 	asr: z.number().nullable().optional(),
+	br: z.number().nullable().optional(),
 	filesize: z.number().nullable().optional(),
 	eData: z.any().optional()
 		.transform((d) => {
-			console.log('[Zod][Track] eData', d)
 			return d?.__type ? d : { __type: 'none' }
 		}), // any data with _type pass
 }).strict();
