@@ -1,16 +1,18 @@
 // AddSource.tsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Button, Input, Alert, Space, Spin, Typography, Empty } from 'antd';
+import { Button, Input, Alert, Space, Spin, Empty, message } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { useElectronBridge } from '../contexts/electronBridgeContext';
 import { MediaFile, TaskProc } from 'a22-shared';
 import MediaFileEditor from './MediaFileEditor';
-import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 const { TextArea } = Input;
 
+
 export const AddSource: React.FC = () => {
 	const bridge = useElectronBridge();
+	const navigate = useNavigate();
 
 	const [url, setUrl] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ export const AddSource: React.FC = () => {
 				case 'result':
 					const source = payload.payload as MediaFile.SourceFile;
 					const fileName = `${source.title} [${source.extractor}][${source.id}]`; // initial
-					const data = MediaFile.create(fileName, [], source );
+					const data = MediaFile.create(fileName, [], source);
 					console.log('[UI][AddSource][loaded] create media file: ', data)
 					setMediaData(data);
 					resetState();
@@ -98,7 +100,8 @@ export const AddSource: React.FC = () => {
 			if (!success) {
 				setError('Failed to save source data.');
 			}
-			close();
+			message.success('Media file has been added');
+			navigate('/');
 		} catch (err: any) {
 			setError('Error saving source: ' + err.message);
 		}
@@ -147,7 +150,7 @@ export const AddSource: React.FC = () => {
 								{progress}
 							</div>
 							<div className="cancel-button-container">
-								<Button danger onClick={() => console.log('Request cancelled')}>
+								<Button danger onClick={handleCancel}>
 									Cancel request
 								</Button>
 							</div>
@@ -174,7 +177,7 @@ export const AddSource: React.FC = () => {
 					/>
 				</div>
 			) : (
-				<Empty description="Video info will appear here once checked" />
+				<Empty description="Media file info will appear here once checked" />
 			)}
 
 		</Space>
