@@ -653,7 +653,7 @@
     react-refresh "^0.17.0"
 
 "a22-shared@file:../shared":
-  version "0.1.4"
+  version "0.1.6"
   dependencies:
     lodash-es "^4.17.21"
     uuid "^11.1.0"

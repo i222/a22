@@ -65,7 +65,6 @@ export namespace YDBMappers {
 			// console.log('[eData]', eData);
 
 			const br = f.tbr ? f.tbr : (f.vbr ? f.vbr : (f.abr ? f.abr : null));
-			console.log('[br]', br, f);
 
 			return {
 				formatId: f.format_id,

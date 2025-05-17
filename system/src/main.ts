@@ -29,6 +29,7 @@ app.whenReady().then(async () => {
 				contextIsolation: true,
 				webSecurity: false,
 				nodeIntegration: false,
+				// sandbox: false // sandbox
 				// enableRemoteModule: false,
 			},
 		});
