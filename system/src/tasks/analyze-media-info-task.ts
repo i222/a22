@@ -28,7 +28,6 @@ interface AnalyzeMediaPayload {
 	url: string;
 }
 
-
 /**
  * Extracts lightweight information about a media URL (playlist or single video)
  * using yt-dlp with `--flat-playlist` and `--dump-single-json` for fast detection.
@@ -40,18 +39,18 @@ export async function getPlaylistInfo(url: string, signal: AbortSignal): Promise
 	// try {
 	const playlistResult = await execFileWithAbort({
 		file: RIPIT_YT_DLP_RUN,
-		args: ['--dump-single-json', '--flat-playlist', url],
+		args: ['--dump-single-json', '--flat-playlist', '--skip-download', url],
 		signal,
 	});
 
-	console.log('[getPlaylistInfo][!]', { playlistResult });
+	// console.log('[getPlaylistInfo]', { playlistResult });
 	if (playlistResult.aborted) {
 		return null;
 	}
 	if (playlistResult?.code !== 0) {
 		throw new Error(playlistResult?.stderr);
 	}
-	console.log('[getPlaylistInfo][!]', { playlistResult });
+	// console.log('[getPlaylistInfo][2]', { playlistResult });
 	const data = JSON.parse(playlistResult?.stdout);
 	const info: MediaFile.UrlInfo = YDBMappers.mapToUrlInfo(data);
 
@@ -67,7 +66,7 @@ export async function getPlaylistInfo(url: string, signal: AbortSignal): Promise
 export const analyzeMediaInfoTask: TaskProc.Handler = async ({ payload, signal, emit }) => {
 	const { url } = payload as AnalyzeMediaPayload;
 
-	console.log('[TSK][analyzeMediaInfo][start]', { url })
+	// console.log('[TSK][analyzeMediaInfo][start]', { url })
 
 	try {
 		// Emit initial progress
@@ -81,11 +80,12 @@ export const analyzeMediaInfoTask: TaskProc.Handler = async ({ payload, signal, 
 		// 	args: ['--dump-single-json', '--flat-playlist', url],
 		// 	signal,
 		// });
-		const playlistInfo = await getPlaylistInfo(url, signal);
-		if (signal.aborted) {
-			emit({ type: 'cancelled', payload: null });
-			return;
-		}
+
+		// const playlistInfo = await getPlaylistInfo(url, signal);
+		// if (signal.aborted) {
+		// 	emit({ type: 'cancelled', payload: null });
+		// 	return;
+		// }
 
 		// console.log('[TSK][analyzeMediaInfo][step 1][res]', { playlistInfo })
 
@@ -93,67 +93,82 @@ export const analyzeMediaInfoTask: TaskProc.Handler = async ({ payload, signal, 
 		// emit({ type: 'progress', payload: playlistInfo });
 
 		// If the URL is not a single video (e.g. a playlist), emit and stop
-		if (playlistInfo.type !== 'video') {
-			// emit({ type: 'result', payload: playlistInfo });
-			emit({
-				type: 'error', payload: {
-					type: 'error',
-					count: 0,
-					error: 'Video expected',
-				}
-			});
-			return;
-		}
+
+		// if (playlistInfo.type !== 'video') {
+		// 	// emit({ type: 'result', payload: playlistInfo });
+		// 	emit({
+		// 		type: 'error', payload: {
+		// 			type: 'error',
+		// 			count: 0,
+		// 			error: 'Video expected',
+		// 		}
+		// 	});
+		// 	return;
+		// }
 
 		// Emit progress for metadata fetching step
-		emit({ type: 'progress', payload: `Step 2/2. Fetching full metadata for: ${playlistInfo.title ? playlistInfo.title : 'no title'}` });
+		// emit({ type: 'progress', payload: `Step 2/2. Fetching full metadata for: ${playlistInfo.title ? playlistInfo.title : 'no title'}` });
 
 		// Step 2: Get detailed metadata for a single video
 		const detailResult = await execFileWithAbort({
 			file: RIPIT_YT_DLP_RUN,
-			args: ['--dump-single-json', url],
+			args: ['--dump-single-json', '--flat-playlist', '--skip-download', url],
 			signal,
 		});
 
-		if (signal.aborted) {
-			emit({ type: 'cancelled', payload: null });
-			return;
-		}
+			if (signal.aborted) {
+				emit({ type: 'cancelled', payload: null });
+				return;
+			}
 
-		// Map the response to internal SourceFile type
-		const sourceFile: MediaFile.SourceFile = YDBMappers.mapToSourceFile(
-			JSON.parse(detailResult.stdout)
-		);
+			const rowSource = JSON.parse(detailResult.stdout);
+			console.log('[TSK][analyzeMediaInfo][loaded][raw]', { rowSource })
 
-		// Validate the final SourceFile using Zod schema
-		const validation = SourceFileSchema.safeParse(sourceFile);
+			// REVIEW audio?
+			if (rowSource?._type !== 'video') {
+					emit({
+						type: 'error', payload: {
+							type: 'error',
+							count: 0,
+							error: `Video expected, but ${rowSource?._type || 'no media file'} is detected`,
+						}
+					});
+					return;
+				}
 
-		if (!validation.success) {
-			const errors = validation.error.issues
-				.map((i) => `${i.path.join('.')}: ${i.message}`)
-				.join('; ');
-			throw new Error(`Validation failed: ${errors}`);
-		}
+			// Map the response to internal SourceFile type
+			const sourceFile: MediaFile.SourceFile = YDBMappers.mapToSourceFile(rowSource);
+			console.log("[TSK][analyzeMediaInfo] Source parsed", );
 
-		// Emit the validated result
-		emit({ type: 'result', payload: validation.data });
-	} catch (err: any) {
+			// Validate the final SourceFile using Zod schema
+			const validation = SourceFileSchema.safeParse(sourceFile);
 
-		console.log('[TSK][analyzeMediaInfo][ERROR]', { err, aborted: signal.aborted })
+			if (!validation.success) {
+				const errors = validation.error.issues
+					.map((i) => `${i.path.join('.')}: ${i.message}`)
+					.join('; ');
+				throw new Error(`Validation failed: ${errors}`);
+			}
 
-		if (signal.aborted) {
-			emit({ type: 'cancelled', payload: null });
-			return;
-		}
+			// Emit the validated result
+			emit({ type: 'result', payload: validation.data });
+		} catch (err: any) {
 
-		// Emit structured error in case of failure
-		emit({
-			type: 'error',
-			payload: {
+			console.log('[TSK][analyzeMediaInfo][ERROR]', { err, aborted: signal.aborted })
+
+			if (signal.aborted) {
+				emit({ type: 'cancelled', payload: null });
+				return;
+			}
+
+			// Emit structured error in case of failure
+			emit({
 				type: 'error',
-				count: 0,
-				error: err.message || String(err),
-			},
-		});
-	}
-};
+				payload: {
+					type: 'error',
+					count: 0,
+					error: err.message || String(err),
+				},
+			});
+		}
+	};

@@ -28,6 +28,7 @@ export namespace YDBMappers {
 	export function mapToSourceFile(json: any): MediaFile.SourceFile {
 		const extractor = json.extractor ?? json.extractor_key ?? 'unknown';
 		const tracks = mapToTracks(json.formats || [], extractor);
+		// console.log('[Tracks]', tracks);
 		const eData: MediaFile.ESource = 'youtube' === extractor
 			? mapSourceFileExtYoutube(json)
 			: { __type: 'none' }; // ADD HERE mappers for youtube etc.
@@ -56,27 +57,37 @@ export namespace YDBMappers {
 	 * @returns Mapped array of MediaFile.Track objects.
 	 */
 	function mapToTracks(formats: any[], extractor: string): MediaFile.Track[] {
-		return formats.map((f: any) => ({
-			formatId: f.format_id,
-			format: f.format ?? null,
-			ext: f.ext,
-			vcodec: f.vcodec ?? null,
-			acodec: f.acodec ?? null,
-			width: f.width ?? null,
-			height: f.height ?? null,
-			fps: f.fps ?? null,
-			tbr: f.tbr ?? null,
-			abr: f.abr ?? null,
-			vbr: f.vbr ?? null,
-			asr: f.asr ?? null,
-			filesize: f.filesize ?? f.filesize_approx ?? null,
-			url: f.url ?? null,
-			hasAudio: f.vcodec === 'none' && f.acodec !== 'none',
-			hasVideo: f.vcodec !== 'none',
-			eData: 'youtube' === extractor // ADD HERE mappers for youtube etc.
+		return formats.map((f: any) => {
+			const eData = 'youtube' === extractor // ADD HERE mappers for youtube etc.
 				? mapTrackExtYoutube(f)
-				: { __type: 'none' },
-		}));
+				: { __type: 'none' }
+				;
+			// console.log('[eData]', eData);
+
+			const br = f.tbr ? f.tbr : (f.vbr ? f.vbr : (f.abr ? f.abr : null));
+			console.log('[br]', br, f);
+
+			return {
+				formatId: f.format_id,
+				format: f.format ?? null,
+				ext: f.ext,
+				vcodec: f.vcodec ?? null,
+				acodec: f.acodec ?? null,
+				width: f.width ?? null,
+				height: f.height ?? null,
+				fps: f.fps ?? null,
+				tbr: f.tbr ?? null,
+				abr: f.abr ?? null,
+				vbr: f.vbr ?? null,
+				asr: f.asr ?? null,
+				br,
+				filesize: f.filesize ?? f.filesize_approx ?? null,
+				url: f.url ?? null,
+				hasAudio: f.vcodec === 'none' && f.acodec !== 'none',
+				hasVideo: f.vcodec !== 'none',
+				eData
+			}
+		});
 	}
 
 
@@ -208,7 +219,7 @@ export namespace YDBMappers {
 			height: get(data, 'height'),
 			quality: get(data, 'quality'),
 			has_drm: get(data, 'has_drm'),
-			tbr: get(data, 'tbr'),
+			// tbr: get(data, 'tbr'),
 			filesize_approx: get(data, 'filesize_approx'),
 			url: get(data, 'url'),
 			width: get(data, 'width'),

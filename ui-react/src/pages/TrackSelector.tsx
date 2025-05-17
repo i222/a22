@@ -13,7 +13,7 @@ interface Props {
 
 // Presets map common selections to formatIds
 const presets: Record<string, string[]> = {
-	'720p': ['137', '140'],
+	'720p': ['136', '140'],
 	'1080p': ['137', '140'],
 	'audio': ['140'],
 };
@@ -103,6 +103,18 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 		label: `${track.format} | ${track.ext} | ${track.formatId}`,
 	}));
 
+	const youtubeColumns = tracks[0].eData?.__type === 'youtube'
+		? [{
+			title: 'Quality',
+			dataIndex: ['eData', 'quality'],
+			width: 30,
+			// defaultSortOrder: 'descend',
+			sorter: (a, b) => (a.eData?.quality ?? 0) - (b.eData?.quality ?? 0),
+			render: (q) => isFinite(q) ? q : '-'
+		},]
+		: []
+		;
+
 	const columns: ColumnsType<MediaFile.Track> = [
 		{
 			title: '',
@@ -118,19 +130,31 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 		{
 			title: 'ID',
 			dataIndex: 'formatId',
-			width: 80,
+			width: 40,
 			sorter: (a, b) => a.formatId.localeCompare(b.formatId),
 		},
 		{
-			title: 'Format',
+			title: 'Info',
 			dataIndex: 'format',
 			sorter: (a, b) => a.format.localeCompare(b.format),
+		},
+		...youtubeColumns,
+		{
+			title: 'Bitrate',
+			dataIndex: 'br',
+			width: 100,
+			defaultSortOrder: 'descend',
+			sorter: (a, b) => (a.br ?? 0) - (b.br ?? 0),
+			render: (size?: number) => filesize((size ?? 0) * 1000, {
+				round: 2,
+				base: 10,
+			}) + 'ps',
 		},
 		{
 			title: 'Size',
 			dataIndex: 'filesize',
 			width: 100,
-			defaultSortOrder: 'descend',
+			// defaultSortOrder: 'descend',
 			sorter: (a, b) => (a.filesize ?? 0) - (b.filesize ?? 0),
 			render: (size?: number) => filesize(size ?? 0).toString(),
 		},

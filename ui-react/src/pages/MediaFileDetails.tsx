@@ -49,8 +49,14 @@ const MediaFileDetails: React.FC<MediaFileDetailsProps> = ({ file }) => {
 	 */
 	// src/pages/MediaFileDetails.tsx
 	const formatFileSize = (size?: number, defaultValue = '-'): string => {
-		const sizeFormatted = filesize(size);
-		return typeof sizeFormatted === 'string' ? sizeFormatted : defaultValue;
+		try {
+			const sizeFormatted = filesize(size);
+
+			return typeof sizeFormatted === 'string' ? sizeFormatted : defaultValue;
+		} catch (e) {
+			console.warn('[UI][formatFileSize] an invalid value occurred', { size })
+			return defaultValue;
+		}
 	};
 
 
