@@ -1,116 +1,117 @@
-// AddSource.tsx
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+// ui-react/src/pages/AddSource.tsx
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, Alert, Space, Spin, Empty, message } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { MediaFile, TaskProc } from 'a22-shared';
-import { useBridgeService } from '../contexts/BridgeServiceContext'; // Подключаем новый сервис
+import { useBridgeService } from '../contexts/BridgeServiceContext'; // Importing the BridgeService
 import MediaFileEditor from './MediaFileEditor';
 
 const { TextArea } = Input;
 
 export const AddSource: React.FC = () => {
-  const bridge = useBridgeService(); // Используем BridgeService
+  const bridge = useBridgeService(); // Using the BridgeService for task management
   const navigate = useNavigate();
 
-  const [url, setUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState<string | null>(null);
-  const [error, setError] = useState<string | string[] | null>(null);
-  const [mediaData, setMediaData] = useState<MediaFile.Data | null>(null);
+  const [url, setUrl] = useState(''); // State for the URL input
+  const [loading, setLoading] = useState(false); // State for loading indicator
+  const [progress, setProgress] = useState<string | null>(null); // State for progress tracking
+  const [error, setError] = useState<string | string[] | null>(null); // State for errors
+  const [mediaData, setMediaData] = useState<MediaFile.Data | null>(null); // State for media file data
 
-  const taskIdRef = useRef<string | null>(null);
+  const taskIdRef = useRef<string | null>(null); // Ref to store task ID for cancellation
 
   useEffect(() => {
+    // Event handler for task progress or result
     const handleEvent = (event: TaskProc.Event) => {
       if (taskIdRef.current && event?.taskId !== taskIdRef.current) return;
 
       switch (event?.type) {
         case 'progress':
-          if (typeof event.payload === 'string') setProgress(event.payload);
+          if (typeof event.payload === 'string') setProgress(event.payload); // Update progress
           break;
         case 'result':
           const source = event.payload as MediaFile.SourceFile;
-          const fileName = `${source.title} [${source.extractor}][${source.id}]`; // initial
-          const data = MediaFile.create(fileName, [], source);
+          const fileName = `${source.title} [${source.extractor}][${source.id}]`; // Set filename
+          const data = MediaFile.create(fileName, [], source); // Create media data
           console.log('[UI][AddSource][loaded] create media file: ', data);
-          setMediaData(data);
-          resetState();
+          setMediaData(data); // Set the media data
+          resetState(); // Reset loading state
           break;
         case 'error':
-          setError(['Failed to fetch media info:', event.payload?.error || String(event.payload)]);
+          setError(['Failed to fetch media info:', event.payload?.error || String(event.payload)]); // Error handling
           resetState();
           break;
         case 'cancelled':
-          resetState();
+          resetState(); // Reset state if task is cancelled
           break;
-        default: // other ignored
+        default:
           break;
       }
     };
 
-    bridge.subscribe(handleEvent); // Подписываемся на события
+    bridge.subscribe(handleEvent); // Subscribe to events from BridgeService
 
     return () => {
-      bridge.unsubscribe(handleEvent); // Отписываемся при размонтировании
+      bridge.unsubscribe(handleEvent); // Unsubscribe on component unmount
     };
   }, [bridge]);
 
-  // Сброс состояния
+  // Function to reset the state
   const resetState = () => {
     setLoading(false);
     setProgress(null);
     taskIdRef.current = null;
   };
 
-  // Обработка проверки источника
+  // Function to handle source check
   const handleCheckSource = async () => {
     setError(null);
     setMediaData(null);
     setLoading(true);
 
     try {
-      await handleCancel(); // Отменить предыдущую задачу, если есть
+      await handleCancel(); // Cancel previous task if exists
 
       const params: TaskProc.Input = {
         type: 'analyze-media-info',
-        payload: { url: url.trim() },
+        payload: { url: url.trim() }, // Pass URL to the task
       };
 
-      const taskId = await bridge.runTask(params);
+      const taskId = await bridge.runTask(params); // Run the task using BridgeService
       taskIdRef.current = taskId;
       setProgress('Step 1/2. Detecting media type...');
     } catch (err: any) {
-      setError('Failed to start task: ' + err.message);
+      setError('Failed to start task: ' + err.message); // Error handling
       resetState();
     }
   };
 
-  // Обработка отмены задачи
+  // Function to handle task cancellation
   const handleCancel = async () => {
     if (taskIdRef.current) {
-      await bridge.abortTask(taskIdRef.current);
+      await bridge.abortTask(taskIdRef.current); // Abort the task if it exists
     }
   };
 
-  // Обработка сохранения данных
+  // Function to handle saving the media file
   const handleSave = async (updatedData: MediaFile.Data) => {
     console.log('[UI][AddSource] Save', updatedData);
     if (!updatedData) return;
 
     try {
-      const success = await bridge.addSource(updatedData);
+      const success = await bridge.addSource(updatedData); // Save the media file via BridgeService
       if (!success) {
         setError('Failed to save source data.');
       }
       message.success('Media file has been added');
-      navigate('/');
+      navigate('/'); // Navigate back to the main page after success
     } catch (err: any) {
-      setError('Error saving source: ' + err.message);
+      setError('Error saving source: ' + err.message); // Error handling
     }
   };
 
-  // Рендеринг ошибок
+  // Function to render errors
   const renderError = () => {
     if (!error) return null;
     const content = Array.isArray(error) ? error.map((e, i) => <div key={i}>{e}</div>) : error;
@@ -120,7 +121,7 @@ export const AddSource: React.FC = () => {
         message="Error"
         description={<div>{content}</div>}
         closable
-        onClose={() => setError(null)}
+        onClose={() => setError(null)} // Close error message
       />
     );
   };
@@ -131,15 +132,15 @@ export const AddSource: React.FC = () => {
         <Input
           placeholder="Enter video URL"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          onPressEnter={handleCheckSource}
+          onChange={(e) => setUrl(e.target.value)} // Update URL state on change
+          onPressEnter={handleCheckSource} // Trigger the check on Enter
           allowClear
         />
         <Button
           type="primary"
           icon={loading ? <Spin size="small" /> : <InfoCircleOutlined />}
-          onClick={handleCheckSource}
-          disabled={!url.trim() || loading}
+          onClick={handleCheckSource} // Trigger the source check
+          disabled={!url.trim() || loading} // Disable if URL is empty or loading
         >
           Get Url Info
         </Button>
@@ -151,12 +152,10 @@ export const AddSource: React.FC = () => {
           description={
             <Space direction="vertical" style={{ width: '100%' }}>
               <div className="truncated-text">
-                {progress}
+                {progress} {/* Display progress */}
               </div>
               <div className="cancel-button-container">
-                <Button danger onClick={handleCancel}>
-                  Cancel request
-                </Button>
+                <Button danger onClick={handleCancel}>Cancel request</Button> {/* Cancel button */}
               </div>
             </Space>
           }
@@ -166,20 +165,19 @@ export const AddSource: React.FC = () => {
         />
       )}
 
-      {renderError()}
+      {renderError()} {/* Render error messages if any */}
 
       {mediaData ? (
         <div>
           <MediaFileEditor
-            data={mediaData}
+            data={mediaData} // Pass media data to the editor
             isNew={true}
-            onSave={handleSave}
+            onSave={handleSave} // Handle save on editor submit
           />
         </div>
       ) : (
-        <Empty description="Media file info will appear here once checked" />
+        <Empty description="Media file info will appear here once checked" /> // Empty state
       )}
-
     </Space>
   );
 };
