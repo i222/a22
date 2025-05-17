@@ -42,7 +42,7 @@ class AppServiceContainer extends TypedServiceContainer<AppServices> {
 	registerCoreServices(getWindow: () => BrowserWindow | null) {
 		this.register('console', () => new ConsoleService(getWindow));
 		this.register('ytdlp', () => new YTDLPService(getWindow));
-		this.register('queue', () => new JsonQueueStore());
+		this.register('queue', () => new JsonQueueStore(getWindow));
 		console.log('[Service Container] core services added');
 	}
 

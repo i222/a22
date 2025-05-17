@@ -7,6 +7,10 @@ import { serviceContainer } from "./services/service-container";
 import { TaskProcessor } from "./lib/task-processor/task-processor";
 import { analyzeMediaInfoTask } from "./tasks/analyze-media-info-task";
 import { validateIpcInvokeHandlers } from "./utils/brige-checker";
+import { TaskProc } from "a22-shared";
+import { AddMediaFileTask } from "./tasks/add-media-file-task";
+import { DeleteMediaFilesTask } from "./tasks/delete-media-file-task";
+import { GetMediaFilesReqTask } from "./tasks/get-media-filed-req-task";
 
 const RIPIT_INDEX_FILE = "index.html";
 
@@ -25,14 +29,13 @@ app.whenReady().then(async () => {
 				contextIsolation: true,
 				webSecurity: false,
 				nodeIntegration: false,
+				// sandbox: false // sandbox
 				// enableRemoteModule: false,
 			},
 		});
-
-		console.log("[Loading] open devTools");
-		mainWindow.webContents.openDevTools({ mode: "right" });
-
 		console.log("[Loading] mainWindow created");
+
+		// mainWindow.webContents.openDevTools({ mode: "right" });
 
 		// Initialize a task processor to handle background tasks
 		const taskProcessor = new TaskProcessor((event) => {
@@ -40,26 +43,9 @@ app.whenReady().then(async () => {
 			mainWindow.webContents.send("CID_ON_TASK_PROCESSOR_EVENT", event);
 		});
 
-		// Register supported task types
-		taskProcessor.register("analyze-media-info", analyzeMediaInfoTask);
+		linkProcessor(taskProcessor);
 
-		// Register IPC handler to run a task
-		ipcMain.handle("CID_RUN_TASK", async (event, task: { type: string; payload: any }) => {
-			const { type, payload } = task;
-			try {
-				const taskId = taskProcessor.run(task);
-				return taskId;
-			} catch (err) {
-				console.error(`Failed to start task of type "${type}"`, err);
-				throw err; // This error will propagate to the renderer
-			}
-		});
-
-		// Register IPC handler to abort a task
-		ipcMain.handle("CID_ABORT_TASK", async (event, taskId: string) => {
-			const success = taskProcessor.abort(taskId);
-			return { success };
-		});
+		console.log("[Loading]taskProcessor created and linked");
 
 		// Register core application services and expose mainWindow to them
 		serviceContainer.registerCoreServices(() => mainWindow);
@@ -112,3 +98,36 @@ app.whenReady().then(async () => {
 		dialog.showErrorBox("Ops, something went wrong", (err as Error).message);
 	}
 });
+
+
+function linkProcessor(taskProcessor: TaskProcessor) {
+	// Register supported task types
+	try {
+		taskProcessor.register("analyze-media-info", analyzeMediaInfoTask);
+		taskProcessor.register('TID_ADD_MEDIAFILE', AddMediaFileTask);
+		taskProcessor.register('TID_DELETE_MEDIAFILES', DeleteMediaFilesTask);
+		// taskProcessor.register('TID_DOWNLOAD_MEDIAFILES_REQ', Task);
+		taskProcessor.register('TID_GET_MEDIAFILES_REQ', GetMediaFilesReqTask);
+	} catch (e) {
+		console.warn('[MAIN] Warning: It looks like the processor is being linked a second time. Ignored.');
+	}
+
+
+	// Register IPC handler to run a task
+	ipcMain.handle("CID_RUN_TASK", async (event, task: TaskProc.Input) => {
+		const { type, payload } = task;
+		try {
+			const taskId = taskProcessor.run(task);
+			return taskId;
+		} catch (err) {
+			console.error(`Failed to start task of type "${type}"`, err);
+			throw err; // This error will propagate to the renderer
+		}
+	});
+
+	// Register IPC handler to abort a task
+	ipcMain.handle("CID_ABORT_TASK", async (event, taskId: string) => {
+		const success = taskProcessor.abort(taskId);
+		return { success };
+	});
+}

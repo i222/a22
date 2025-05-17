@@ -1,6 +1,4 @@
 // src/main/preload.ts
-import { contextBridge, ipcRenderer } from 'electron';
-import { ElectronBridge, IPCConstantsInvoke, MediaFile, TaskProc } from 'a22-shared';
 
 /**
  * --------------------------------------------------------
@@ -36,6 +34,8 @@ import { ElectronBridge, IPCConstantsInvoke, MediaFile, TaskProc } from 'a22-sha
  * - shared types (ElectronBridge, IPCConstantsInvoke, etc.)
  */
 
+import { contextBridge, ipcRenderer } from 'electron';
+import { ElectronBridge, IPCConstantsInvoke, MediaFile, TaskProc } from 'a22-shared';
 
 /**
  * The name under which the bridge API will be exposed in the renderer context.
@@ -84,8 +84,10 @@ const bridge: ElectronBridge = {
 	runTask: (task: TaskProc.Input) => _invoke('CID_RUN_TASK', task),
 	abortTask: (taskId: string) => _invoke('CID_ABORT_TASK', taskId),
 
-	onEvent(callback: (payload: any) => void) {
-		taskEventCallback = callback;
+	// Subscribe to events
+	subscribe(eventHandler: (event: TaskProc.Event) => void): void {
+		// console.log('[<->] subscribe', { eventHandler })
+		taskEventCallback = eventHandler;
 	},
 };
 
@@ -105,11 +107,12 @@ ipcRenderer.on('CID_ON_CONSOLE_LOG', (event, level, args) => {
 });
 
 // Internal callback handler for task processor events
-let taskEventCallback: ((payload: any) => void) | null = null;
+let taskEventCallback: ((payload: TaskProc.Event) => void) | null = null;
 
 /**
  * Listens to task processor events sent from the main process and forwards them to the registered UI callback.
  */
-ipcRenderer.on('CID_ON_TASK_PROCESSOR_EVENT', (_event, payload) => {
+ipcRenderer.on('CID_ON_TASK_PROCESSOR_EVENT', (_event: Electron.IpcRendererEvent, payload: TaskProc.Event) => {
+	// console.log('[<->] income event, payload: ', payload)
 	taskEventCallback?.(payload);
 });

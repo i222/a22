@@ -37,7 +37,14 @@ export interface ElectronBridge {
 	// onTaskProcessorEvent: (callback: Function) => void,
 	// offTaskProcessorEvent: () => void,
 
-	onEvent(callback: (payload: any) => void);
+	// onEvent(callback: (payload: any) => void);
+
+	// Subscribe to events
+	subscribe(eventHandler: (event: TaskProc.Event) => void): void;
+
+	// Unsubscribe from events
+	// unsubscribe(eventHandler: (event: TaskProc.Event) => void): void;
+
 }
 
 /**
@@ -66,12 +73,12 @@ export function validateElectronBridge(bridge: ElectronBridge): boolean {
  * List of all invoke IPC channels, used with ipcRenderer.invoke.
  */
 export const allConstantsInvoke = [
-  'CID_GET_SOURCE_INFO',   // Request media info by URL
-  'CID_ADD_SOURCE',        // Add a new media file to database
-  'CID_GET_LIST',          // Get the list of media sources
+	'CID_GET_SOURCE_INFO',   // Request media info by URL
+	'CID_ADD_SOURCE',        // Add a new media file to database
+	'CID_GET_LIST',          // Get the list of media sources
 
-  'CID_RUN_TASK',          // Start a long-running background task
-  'CID_ABORT_TASK',        // Abort a previously started task
+	'CID_RUN_TASK',          // Start a long-running background task
+	'CID_ABORT_TASK',        // Abort a previously started task
 ] as const;
 
 /**
@@ -83,8 +90,8 @@ export type IPCConstantsInvoke = typeof allConstantsInvoke[number];
  * List of event-based (listener) channels, used with ipcRenderer.on.
  */
 export type IPCConstantsOn =
-  | 'CID_ON_CONSOLE_LOG'            // Console log forwarding from main
-  | 'CID_ON_TASK_PROCESSOR_EVENT';  // Events emitted by TaskProcessor (progress, result, etc.)
+	| 'CID_ON_CONSOLE_LOG'            // Console log forwarding from main
+	| 'CID_ON_TASK_PROCESSOR_EVENT';  // Events emitted by TaskProcessor (progress, result, etc.)
 
 /**
  * The name under which the ElectronBridge is exposed in window context.

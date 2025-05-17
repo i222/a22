@@ -17,40 +17,62 @@ import {
 	EyeOutlined,
 	LoadingOutlined,
 } from '@ant-design/icons';
-import { MediaFile } from 'a22-shared';
+import { MediaFile, TaskProc } from 'a22-shared';
 import MediaFileDetails from './MediaFileDetails';
-import { useElectronBridge } from '../contexts/electronBridgeContext';
+import { useBridgeService } from '../contexts/BridgeServiceContext'; // Update import to use BridgeService context
 import './Home.css';
 import { stopPropagation } from '../utils/events';
 
 const { Paragraph } = Typography;
 
 const Home: React.FC = () => {
-	const [mediaFiles, setMediaFiles] = useState<MediaFile.Data[]>([]);
+	const [mediaFiles, setMediaFiles] = useState<MediaFile.Data[]>([]); // Always initialize as empty array
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const [selectAll, setSelectAll] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 
-	const bridge = useElectronBridge();
+	const bridge = useBridgeService(); // Using the updated BridgeService context
 
+	// Effect to request the file list when component mounts
 	useEffect(() => {
 		const loadList = async () => {
 			try {
-				const list = await bridge.getList();
-				setMediaFiles(list);
+				// Request the media files using the runTask method
+				const task: TaskProc.Input = {
+					type: 'TID_GET_MEDIAFILES_REQ',
+					payload: {},
+				};
+				await bridge.runTask(task);
 			} catch (e) {
 				console.error('Error loading file list', e);
 			}
 		};
-		loadList();
+
+		// Subscribe to events that will update the file list
+		const handleEvent = (event: TaskProc.EventBroadcast) => {
+			console.log('[UI][Home][Income Event]', event);
+			if (event?.type === 'MEDIAFILES_LIST') {
+				setMediaFiles(event.payload || []); // Safely update state
+			}
+		};
+
+		bridge.subscribe(handleEvent); // Subscribe to the event
+		loadList(); // Fetch list initially
+
+		// Cleanup function: unsubscribe from events on unmount
+		return () => {
+			bridge.unsubscribe(handleEvent); // Unsubscribe from the event
+		};
 	}, [bridge]);
 
+	// Toggle 'Select All' checkbox
 	const toggleSelectAll = (checked: boolean) => {
 		setSelectAll(checked);
 		setSelectedIds(checked ? new Set(mediaFiles.map((f) => f.id)) : new Set());
 	};
 
+	// Toggle individual file selection
 	const toggleSelectFile = (id: string) => {
 		const updated = new Set(selectedIds);
 		if (updated.has(id)) {
@@ -62,13 +84,16 @@ const Home: React.FC = () => {
 		setSelectAll(updated.size === mediaFiles.length);
 	};
 
+	// Check if a file is selected
 	const isSelected = (id: string) => selectedIds.has(id);
 
+	// Get selected files
 	const selectedFiles = useMemo(
 		() => mediaFiles.filter((f) => selectedIds.has(f.id)),
 		[mediaFiles, selectedIds]
 	);
 
+	// Download selected files
 	const downloadSelectedFiles = async () => {
 		setIsDownloading(true);
 		try {
@@ -80,6 +105,7 @@ const Home: React.FC = () => {
 		}
 	};
 
+	// Delete selected files
 	const deleteSelectedFiles = async () => {
 		setIsDeleting(true);
 		try {
@@ -91,10 +117,12 @@ const Home: React.FC = () => {
 		}
 	};
 
+	// Configure file (e.g., navigate to settings)
 	const configureFile = (file: MediaFile.Data) => {
 		console.log(`Navigating to task-settings for file ID: ${file.id}`);
 	};
 
+	// Get track type based on track properties
 	const getTrackType = (track: MediaFile.Track): 'success' | 'warning' | 'error' | undefined => {
 		if (track.hasVideo && track.hasAudio) return 'error';
 		if (track.hasVideo) return 'success';
@@ -102,6 +130,7 @@ const Home: React.FC = () => {
 		return undefined;
 	};
 
+	// Copy URL to clipboard
 	const copyUrl = (url: string) => {
 		navigator.clipboard
 			.writeText(url)
@@ -109,9 +138,9 @@ const Home: React.FC = () => {
 			.catch(() => message.error('Copy error'));
 	};
 
+	// Open URL in new tab
 	const openUrl = async (url: string) => {
 		try {
-			// await bridge.openExternal(url); // if available
 			window.open(url, '_blank');
 		} catch {
 			message.error('Failed to open link');
@@ -189,17 +218,6 @@ const Home: React.FC = () => {
 															}}
 														/>
 													</Tooltip>
-													{/* <Tooltip title="Open in browser">
-														<Button
-															type="text"
-															size="small"
-															icon={<EyeOutlined />}
-															onClick={(e) => {
-																openUrl(file.source.webpageUrl);
-																stopPropagation(e);
-															}}
-														/>
-													</Tooltip> */}
 												</Space>
 												<Space size="small" wrap>
 													{file.trackIds.map((track) => (
@@ -228,11 +246,6 @@ const Home: React.FC = () => {
 									children: (
 										<div className="collapse-body">
 											<MediaFileDetails file={file} />
-											{/* <div className="edit-button">
-												<Button size="small" onClick={() => configureFile(file)}>
-													Edit
-												</Button>
-											</div> */}
 										</div>
 									),
 								},
