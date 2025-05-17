@@ -10,7 +10,7 @@ export class TaskProcessor {
 		this.emitRaw = emitFn;
 	}
 
-	register(type: string, handler: TaskProc.Handler) {
+	register(type: TaskProc.TaskType, handler: TaskProc.Handler) {
 		if (this.handlers.has(type)) {
 			throw new Error(`Handler for type "${type}" already registered`);
 		}
@@ -29,6 +29,10 @@ export class TaskProcessor {
 
 		// Wrapped emit that injects taskId automatically
 		const emit: TaskProc.EmitFn = (event) => {
+			this.emitRaw({ ...event, taskId });
+		};
+
+		const broadcast: TaskProc.EmitFn = (event) => {
 			this.emitRaw({ ...event, taskId });
 		};
 

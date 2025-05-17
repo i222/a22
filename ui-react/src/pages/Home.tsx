@@ -17,7 +17,7 @@ import {
 	EyeOutlined,
 	LoadingOutlined,
 } from '@ant-design/icons';
-import { MediaFile } from 'a22-shared';
+import { MediaFile, TaskProc } from 'a22-shared';
 import MediaFileDetails from './MediaFileDetails';
 import { useElectronBridge } from '../contexts/electronBridgeContext';
 import './Home.css';
@@ -26,7 +26,7 @@ import { stopPropagation } from '../utils/events';
 const { Paragraph } = Typography;
 
 const Home: React.FC = () => {
-	const [mediaFiles, setMediaFiles] = useState<MediaFile.Data[]>([]);
+	const [mediaFiles, setMediaFiles] = useState<MediaFile.Data[]>([]); // Always initialize as empty array
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const [selectAll, setSelectAll] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
@@ -34,16 +34,42 @@ const Home: React.FC = () => {
 
 	const bridge = useElectronBridge();
 
+	// useEffect(() => {
+	// 	console.log('[UI][Home] Media files updated:', mediaFiles); // Логирование состояния mediaFiles
+	// }, [mediaFiles]);
+
+
+	// Effect to request the file list when component mounts
 	useEffect(() => {
 		const loadList = async () => {
 			try {
-				const list = await bridge.getList();
-				setMediaFiles(list);
+				// Request the media files using the runTask method
+				const task: TaskProc.Input = {
+					type: 'TID_GET_MEDIAFILES_REQ',
+					payload: {},
+				};
+				await bridge.runTask(task);
 			} catch (e) {
 				console.error('Error loading file list', e);
 			}
 		};
-		loadList();
+
+		// Subscribe to events that will update the file list
+		const handleEvent = (event: TaskProc.EventBroadcast) => {
+			console.log('[UI][Home][Income Event]', event)
+			if (event?.type === 'MEDIAFILES_LIST') {
+				setMediaFiles(event.payload || []); // Safely update state
+			}
+		};
+
+		bridge.onEvent(handleEvent); // Subscribe to the event
+		loadList(); // Fetch list initially
+
+		// Cleanup function: unsubscribe from events on unmount
+		return () => {
+			// This assumes you have an offEvent method to unsubscribe from the event
+			// bridge.offEvent(handleEvent); // Unsubscribe from the event when component unmounts
+		};
 	}, [bridge]);
 
 	const toggleSelectAll = (checked: boolean) => {
@@ -111,7 +137,6 @@ const Home: React.FC = () => {
 
 	const openUrl = async (url: string) => {
 		try {
-			// await bridge.openExternal(url); // if available
 			window.open(url, '_blank');
 		} catch {
 			message.error('Failed to open link');
@@ -189,17 +214,6 @@ const Home: React.FC = () => {
 															}}
 														/>
 													</Tooltip>
-													{/* <Tooltip title="Open in browser">
-														<Button
-															type="text"
-															size="small"
-															icon={<EyeOutlined />}
-															onClick={(e) => {
-																openUrl(file.source.webpageUrl);
-																stopPropagation(e);
-															}}
-														/>
-													</Tooltip> */}
 												</Space>
 												<Space size="small" wrap>
 													{file.trackIds.map((track) => (
@@ -228,11 +242,6 @@ const Home: React.FC = () => {
 									children: (
 										<div className="collapse-body">
 											<MediaFileDetails file={file} />
-											{/* <div className="edit-button">
-												<Button size="small" onClick={() => configureFile(file)}>
-													Edit
-												</Button>
-											</div> */}
 										</div>
 									),
 								},

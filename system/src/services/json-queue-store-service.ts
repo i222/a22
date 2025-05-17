@@ -1,12 +1,13 @@
 /**
+ * system/src/services/json-queue-store-service.ts
+ * 
  * JSON file-based implementation of QueueStore with in-memory cache,
  * validation on load, and safe, serialized writing to disk.
  */
-
 import path from 'path';
-import { app, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { QueueStore } from '../lib/services/queue-store-service';
-import { MediaFile } from 'a22-shared';
+import { MediaFile, TaskProc } from 'a22-shared';
 import { SafeFileWriter } from '../lib/io/safe-file-writer';
 import { MediaFileValidation } from '../utils/validation/media-data.validator';
 import { FileRotationUtil } from '../utils/file-rotation';
@@ -19,7 +20,7 @@ export class JsonQueueStore extends QueueStore {
 	private invalidEntries: Array<MediaFileValidation.InvalidRecord> = [];
 	private readonly rotationUtil: FileRotationUtil;
 
-	constructor() {
+	constructor(private getWindow: () => BrowserWindow | null) {
 		super();
 		const userDataPath = app.getPath('userData');
 		this.filePath = path.join(userDataPath, 'queue.json');
@@ -71,7 +72,7 @@ export class JsonQueueStore extends QueueStore {
 				console.warn('[Queue] Loaded empty queue from disk');
 			}
 
-			// Используем validateAndCloneMediaFiles
+			// Use validateAndCloneMediaFiles
 			console.log('[QueueService][loadStore] loaded length=', parsed?.length);
 			const { valid, invalid } = MediaFileValidation.validatedClone(parsed);
 
@@ -97,15 +98,59 @@ export class JsonQueueStore extends QueueStore {
 		return false;
 	}
 
+	/**
+	 * Updates a file in the queue.
+	 * This method will search for a file by ID and update its data with the provided new file.
+	 * If the file doesn't exist in the queue, it will return false.
+	 * 
+	 * @param file - The file to update with new data.
+	 * @returns A promise that resolves to true if the update was successful, false if the file was not found.
+	 */
+	async update(file: MediaFile.Data): Promise<boolean> {
+		const index = this.memoryQueue.findIndex(item => item.id === file.id);
+		if (index !== -1) {
+			// Update the file in memory
+			this.memoryQueue[index] = file;
+
+			// Write the updated queue back to disk
+			await this.writer.scheduleWrite(this.memoryQueue);
+			console.log('[QueueService][Update] File updated:', file.id);
+			return true;
+		}
+
+		// If file was not found, return false
+		console.log('[QueueService][Update] File not found for update:', file.id);
+		return false;
+	}
+
 	async removeFiles(ids: string[]): Promise<void> {
 		this.memoryQueue = this.memoryQueue.filter(item => !ids.includes(item.id));
 		await this.writer.scheduleWrite(this.memoryQueue);
 	}
 
 	async getList(): Promise<MediaFile.Data[]> {
-		// return structuredClone(this.memoryQueue);
 		console.log('[Queue][Getlist] ', this.memoryQueue);
 		return structuredClone(this.memoryQueue);
+	}
+
+	async requestList(): Promise<void> {
+		const event: TaskProc.EventBroadcast = {
+			taskId: 'BROADCAST',
+			type: 'MEDIAFILES_LIST',
+			payload: await this.getList()
+		}
+
+		console.log('[Queue][Request List] resp', event);
+		try {
+		this.broadcast(event);
+		} catch (e) {
+			console.log('[Queue][Request List] ERROR ', e);
+		}
+		// return structuredClone(this.memoryQueue);
+	}
+
+	private broadcast(event: TaskProc.EventBroadcast) {
+		this.getWindow().webContents.send("CID_ON_TASK_PROCESSOR_EVENT", event)
 	}
 
 	getInvalidEntries() {
@@ -133,9 +178,11 @@ export class JsonQueueStore extends QueueStore {
 		const handlers: Handlers = [
 			{ channel: 'CID_GET_LIST', listener: this.getListHandler },
 			{ channel: 'CID_ADD_SOURCE', listener: this.addListener },
+			// { channel: 'CID_UPDATE_FILE', listener: this.updateListener },
+			// { channel: 'CID_DELETE_FILE', listener: this.deleteListener },
 		];
 
-		// Асинхронно добавляем обработчики
+		// Async add handlers
 		for (const { channel, listener } of handlers) {
 			await ipcMain.handle(channel, listener);
 		}
@@ -147,8 +194,11 @@ export class JsonQueueStore extends QueueStore {
 	public addListener: (_event: Electron.IpcMainInvokeEvent, data: MediaFile.Data) => Promise<boolean> =
 		async (_event, data) => this.add(data);
 
+	public deleteListener: (_event: Electron.IpcMainInvokeEvent, data: Array<string>) => Promise<void> =
+		async (_event, data) => this.removeFiles(data);
 
-
+	public updateListener: (_event: Electron.IpcMainInvokeEvent, data: MediaFile.Data) => Promise<boolean> =
+		async (_event, data) => this.update(data);
 }
 
 type Handlers = Array<{ channel: IPCConstantsInvoke, listener: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => (Promise<any>) | (any) }>;

@@ -23,8 +23,7 @@ import { SourceFileSchema } from '../utils/validation/media-schemas.zod';
 /**
  * Expected payload shape for this task
  */
-interface AnalyzeMediaPayload {
-	ytDlpPath: string;
+type AnalyzeMediaPayload = {
 	url: string;
 }
 
@@ -63,8 +62,22 @@ export async function getPlaylistInfo(url: string, signal: AbortSignal): Promise
  * TaskHandler implementation to analyze media info via yt-dlp.
  * Emits progress and result events back to the renderer process.
  */
-export const analyzeMediaInfoTask: TaskProc.Handler = async ({ payload, signal, emit }) => {
-	const { url } = payload as AnalyzeMediaPayload;
+
+
+type _AnalyzeMediaHandler = (params: {
+	payload: AnalyzeMediaPayload;
+	signal: AbortSignal;
+	emit: TaskProc.EmitFn
+}
+) => Promise<void>;
+
+// type AnalyzeMediaHandler = (params: TaskProc.Params & { payload: AnalyzeMediaPayload }) => Promise<void>;
+
+type AnalyzeMediaHandler = (params: TaskProc.Params<AnalyzeMediaPayload>) => Promise<void>;
+
+
+export const analyzeMediaInfoTask: AnalyzeMediaHandler = async ({ payload, signal, emit }) => {
+	const { url } = payload; //as AnalyzeMediaPayload;
 
 	// console.log('[TSK][analyzeMediaInfo][start]', { url })
 
@@ -116,59 +129,59 @@ export const analyzeMediaInfoTask: TaskProc.Handler = async ({ payload, signal, 
 			signal,
 		});
 
-			if (signal.aborted) {
-				emit({ type: 'cancelled', payload: null });
-				return;
-			}
+		if (signal.aborted) {
+			emit({ type: 'cancelled', payload: null });
+			return;
+		}
 
-			const rowSource = JSON.parse(detailResult.stdout);
-			console.log('[TSK][analyzeMediaInfo][loaded][raw]', { rowSource })
+		const rowSource = JSON.parse(detailResult.stdout);
+		console.log('[TSK][analyzeMediaInfo][loaded][raw]', { rowSource })
 
-			// REVIEW audio?
-			if (rowSource?._type !== 'video') {
-					emit({
-						type: 'error', payload: {
-							type: 'error',
-							count: 0,
-							error: `Video expected, but ${rowSource?._type || 'no media file'} is detected`,
-						}
-					});
-					return;
-				}
-
-			// Map the response to internal SourceFile type
-			const sourceFile: MediaFile.SourceFile = YDBMappers.mapToSourceFile(rowSource);
-			console.log("[TSK][analyzeMediaInfo] Source parsed", );
-
-			// Validate the final SourceFile using Zod schema
-			const validation = SourceFileSchema.safeParse(sourceFile);
-
-			if (!validation.success) {
-				const errors = validation.error.issues
-					.map((i) => `${i.path.join('.')}: ${i.message}`)
-					.join('; ');
-				throw new Error(`Validation failed: ${errors}`);
-			}
-
-			// Emit the validated result
-			emit({ type: 'result', payload: validation.data });
-		} catch (err: any) {
-
-			console.log('[TSK][analyzeMediaInfo][ERROR]', { err, aborted: signal.aborted })
-
-			if (signal.aborted) {
-				emit({ type: 'cancelled', payload: null });
-				return;
-			}
-
-			// Emit structured error in case of failure
+		// REVIEW audio?
+		if (rowSource?._type !== 'video') {
 			emit({
-				type: 'error',
-				payload: {
+				type: 'error', payload: {
 					type: 'error',
 					count: 0,
-					error: err.message || String(err),
-				},
+					error: `Video expected, but ${rowSource?._type || 'no media file'} is detected`,
+				}
 			});
+			return;
 		}
-	};
+
+		// Map the response to internal SourceFile type
+		const sourceFile: MediaFile.SourceFile = YDBMappers.mapToSourceFile(rowSource);
+		console.log("[TSK][analyzeMediaInfo] Source parsed",);
+
+		// Validate the final SourceFile using Zod schema
+		const validation = SourceFileSchema.safeParse(sourceFile);
+
+		if (!validation.success) {
+			const errors = validation.error.issues
+				.map((i) => `${i.path.join('.')}: ${i.message}`)
+				.join('; ');
+			throw new Error(`Validation failed: ${errors}`);
+		}
+
+		// Emit the validated result
+		emit({ type: 'result', payload: validation.data });
+	} catch (err: any) {
+
+		console.log('[TSK][analyzeMediaInfo][ERROR]', { err, aborted: signal.aborted })
+
+		if (signal.aborted) {
+			emit({ type: 'cancelled', payload: null });
+			return;
+		}
+
+		// Emit structured error in case of failure
+		emit({
+			type: 'error',
+			payload: {
+				type: 'error',
+				count: 0,
+				error: err.message || String(err),
+			},
+		});
+	}
+};
