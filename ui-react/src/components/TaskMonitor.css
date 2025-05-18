@@ -1,0 +1,49 @@
+.task-monitor {
+	background-color: #f0f0f0;
+	/* Light background */
+	max-height: 120px;
+	/* Maximum height when expanded */
+	padding: 8px;
+	overflow-y: auto;
+	/* Allow scrolling if content exceeds max-height */
+	transition: max-height 0.3s ease-in-out;
+	/* Smooth transition for max-height */
+	box-sizing: border-box;
+	/* Include padding in height calculation */
+}
+
+.task-monitor.collapsed {
+	max-height: 0;
+	/* Height when collapsed */
+	padding: 0 8px;
+	/* Maintain horizontal padding, but collapse vertical padding */
+	overflow: hidden;
+	/* Hide content when collapsed */
+}
+
+.cancel-button-container {
+	margin-top: 6px;
+}
+
+.ant-alert {
+	margin-bottom: 0;
+	/* Remove extra margin to fit within 80px */
+	width: 100%;
+	/* max-height: 56px; Max height for alert (80px - 12px top padding - 12px bottom padding) */
+	max-height: calc(1200px - 8px - 8px);
+	/* Calculating max height by subtracting paddings */
+
+	overflow: hidden;
+	/* Hide overflow content */
+}
+
+.alert-description {
+	white-space: nowrap;
+	/* Prevent text wrapping */
+	overflow: hidden;
+	/* Hide overflow text */
+	text-overflow: ellipsis;
+	/* Show ellipsis for truncated text */
+	max-width: 100%;
+	/* Ensure text stays within container */
+}

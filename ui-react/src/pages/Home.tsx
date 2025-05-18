@@ -14,31 +14,31 @@ import {
 } from 'antd';
 import {
 	CopyOutlined,
-	EyeOutlined,
 	LoadingOutlined,
 } from '@ant-design/icons';
 import { MediaFile, TaskProc } from 'a22-shared';
 import MediaFileDetails from './MediaFileDetails';
-import { useBridgeService } from '../contexts/BridgeServiceContext'; // Update import to use BridgeService context
+import { useBridgeService } from '../contexts/BridgeServiceContext';
 import './Home.css';
 import { stopPropagation } from '../utils/events';
 
 const { Paragraph } = Typography;
 
 const Home: React.FC = () => {
-	const [mediaFiles, setMediaFiles] = useState<MediaFile.Data[]>([]); // Always initialize as empty array
+	const [mediaFiles, setMediaFiles] = useState<MediaFile.Data[]>([]); // Initialize as empty array
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const [selectAll, setSelectAll] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 
-	const bridge = useBridgeService(); // Using the updated BridgeService context
+	const [inProgressTasks, setInProgressTasks] = useState<Set<string>>(new Set());
+
+	const bridge = useBridgeService(); // Access the BridgeService context
 
 	// Effect to request the file list when component mounts
 	useEffect(() => {
 		const loadList = async () => {
 			try {
-				// Request the media files using the runTask method
 				const task: TaskProc.Input = {
 					type: 'TID_GET_MEDIAFILES_REQ',
 					payload: {},
@@ -49,11 +49,90 @@ const Home: React.FC = () => {
 			}
 		};
 
-		// Subscribe to events that will update the file list
-		const handleEvent = (event: TaskProc.EventBroadcast) => {
-			console.log('[UI][Home][Income Event]', event);
-			if (event?.type === 'MEDIAFILES_LIST') {
-				setMediaFiles(event.payload || []); // Safely update state
+		// const handleEvent = (event: TaskProc.EventBroadcast) => {
+		// 	console.log('[UI][Home][Income Event]', event);
+		// 	if (event?.type === 'MEDIAFILES_LIST') {
+		// 		setMediaFiles(event.payload || []); // Safely update state
+		// 	}
+		// };
+
+		const isBroadcast = (event: TaskProc.Event): event is TaskProc.EventBroadcast => {
+			return event?.taskId === 'BROADCAST';
+		};
+
+		const handleEvent = (event: TaskProc.Event) => {
+			console.log('[UI][Home][Events]', event);
+
+			// Check if the event is a Broadcast message (taskId === 'BROADCAST')
+			if (isBroadcast(event)) {
+				// Handle MEDIAFILES_LIST broadcast - update media files list
+				if (event?.type === 'MEDIAFILES_LIST') {
+					setMediaFiles(event.payload || []);  // Update the list of media files
+				}
+				// Handle other broadcast types if needed in the future
+				else {
+					console.log('[UI][Home][Events] Received unknown broadcast type in event', event);
+				}
+			}
+			// Handle task-specific events (not a Broadcast)
+			else {
+				const taskId = event.taskId;
+
+				if (taskId) {
+					switch (event.type) {
+						// REWORK - delegate to TaskMonitor
+						// Case for progress event
+						// case 'progress':
+						// 	// Add taskId to inProgressTasks
+						// 	setInProgressTasks((prevTasks) => {
+						// 		const newTasks = new Set(prevTasks);
+						// 		newTasks.add(taskId);
+						// 		return newTasks;
+						// 	});
+						// 	// Optionally show progress in message
+						// 	message.info(`Task ${taskId} progress: ${event.payload}`, 3);
+						// 	break;
+
+						// Case for result event (task completed successfully)
+						case 'result':
+							// Remove taskId from inProgressTasks as it's completed
+							setInProgressTasks((prevTasks) => {
+								const newTasks = new Set(prevTasks);
+								newTasks.delete(taskId);
+								return newTasks;
+							});
+							// Show success message
+							message.success(`Task ${taskId} completed successfully!`);
+							break;
+
+						// Case for error event (task failed)
+						case 'error':
+							// Remove taskId from inProgressTasks as it's failed
+							setInProgressTasks((prevTasks) => {
+								const newTasks = new Set(prevTasks);
+								newTasks.delete(taskId);
+								return newTasks;
+							});
+							// Show error message
+							message.error(`Task ${taskId} failed: ${event.payload?.errorMessage || 'Unknown error'}`);
+							break;
+
+						// Case for cancelled event (task was cancelled)
+						case 'cancelled':
+							// Remove taskId from inProgressTasks as it's cancelled
+							setInProgressTasks((prevTasks) => {
+								const newTasks = new Set(prevTasks);
+								newTasks.delete(taskId);
+								return newTasks;
+							});
+							// Show cancellation message
+							message.warning(`Task ${taskId} was cancelled.`);
+							break;
+
+						default:
+							console.log('Unknown task event type', event);
+					}
+				}
 			}
 		};
 
@@ -95,25 +174,42 @@ const Home: React.FC = () => {
 
 	// Download selected files
 	const downloadSelectedFiles = async () => {
+		if (selectedFiles.length === 0) return;
 		setIsDownloading(true);
 		try {
-			for (const file of selectedFiles) {
-				message.info(`Downloading ${file.fileName}`);
-			}
+			const task: TaskProc.Input = {
+				type: 'TID_DOWNLOAD_MEDIAFILES_REQ',
+				payload: { downloadFiles: selectedFiles },
+			};
+			await bridge.runTask(task);
+			message.success('Download tasks started.');
+		} catch (error) {
+			message.error('Failed to start download tasks.');
 		} finally {
 			setIsDownloading(false);
+			setSelectedIds(new Set()); // Reset the selected files after download
 		}
 	};
 
 	// Delete selected files
 	const deleteSelectedFiles = async () => {
+		if (selectedFiles.length === 0) return;
 		setIsDeleting(true);
 		try {
-			// await bridge.deleteFile(...) if implemented
-			const list = await bridge.getList();
-			setMediaFiles(list);
+			// Delete selected files using the bridge
+			const deleteFileIds = selectedFiles.map((file) => file.id);
+			const payload: TaskProc.DeleteMediafilesPayload = { deleteFileIds };
+			const task: TaskProc.Input = {
+				type: 'TID_DELETE_MEDIAFILES',
+				payload,
+			};
+			await bridge.runTask(task); // Call the bridge to execute the delete task
+			message.success('Files deleted successfully.');
+		} catch (error) {
+			message.error('Failed to delete files.');
 		} finally {
 			setIsDeleting(false);
+			setSelectedIds(new Set()); // Reset the selected files after delete
 		}
 	};
 

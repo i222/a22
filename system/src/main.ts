@@ -11,6 +11,7 @@ import { TaskProc } from "a22-shared";
 import { AddMediaFileTask } from "./tasks/add-media-file-task";
 import { DeleteMediaFilesTask } from "./tasks/delete-media-file-task";
 import { GetMediaFilesReqTask } from "./tasks/get-media-filed-req-task";
+import { DownloadMediaFilesTask } from "./tasks/download-media-files-task";
 
 const RIPIT_INDEX_FILE = "index.html";
 
@@ -106,7 +107,7 @@ function linkProcessor(taskProcessor: TaskProcessor) {
 		taskProcessor.register("analyze-media-info", analyzeMediaInfoTask);
 		taskProcessor.register('TID_ADD_MEDIAFILE', AddMediaFileTask);
 		taskProcessor.register('TID_DELETE_MEDIAFILES', DeleteMediaFilesTask);
-		// taskProcessor.register('TID_DOWNLOAD_MEDIAFILES_REQ', Task);
+		taskProcessor.register('TID_DOWNLOAD_MEDIAFILES_REQ', DownloadMediaFilesTask);
 		taskProcessor.register('TID_GET_MEDIAFILES_REQ', GetMediaFilesReqTask);
 	} catch (e) {
 		console.warn('[MAIN] Warning: It looks like the processor is being linked a second time. Ignored.');
@@ -117,6 +118,7 @@ function linkProcessor(taskProcessor: TaskProcessor) {
 	ipcMain.handle("CID_RUN_TASK", async (event, task: TaskProc.Input) => {
 		const { type, payload } = task;
 		try {
+			console.log('[Handle] Run Task', { task });
 			const taskId = taskProcessor.run(task);
 			return taskId;
 		} catch (err) {
