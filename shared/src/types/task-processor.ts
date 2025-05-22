@@ -25,9 +25,11 @@ export namespace TaskProc {
 	// Generic payload type
 	export type Payload = any;
 
+
 	export type EventResp = {
 		taskId: string;
 		type: 'progress' | 'result' | 'error' | 'cancelled';
+		message?: string;
 		payload: any;
 	}
 

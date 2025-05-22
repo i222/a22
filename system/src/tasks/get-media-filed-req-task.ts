@@ -21,7 +21,8 @@ export const GetMediaFilesReqTask: TaskProc.AddMediafileHandler = async ({ paylo
 		// Emit an error event if something goes wrong
 		emit({
 			type: 'error',
-			payload: error,
+			message: error,
+			payload: null,
 		});
 	}
 };

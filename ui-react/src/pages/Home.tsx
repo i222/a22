@@ -17,7 +17,7 @@ import {
 	LoadingOutlined,
 } from '@ant-design/icons';
 import { MediaFile, TaskProc } from 'a22-shared';
-import MediaFileDetails from './MediaFileDetails';
+import MediaFileDetails from '../components/MediaFileDetails/MediaFileDetails';
 import { useBridgeService } from '../contexts/BridgeServiceContext';
 import './Home.css';
 import { stopPropagation } from '../utils/events';
@@ -37,6 +37,7 @@ const Home: React.FC = () => {
 
 	// Effect to request the file list when component mounts
 	useEffect(() => {
+
 		const loadList = async () => {
 			try {
 				const task: TaskProc.Input = {
@@ -48,13 +49,6 @@ const Home: React.FC = () => {
 				console.error('Error loading file list', e);
 			}
 		};
-
-		// const handleEvent = (event: TaskProc.EventBroadcast) => {
-		// 	console.log('[UI][Home][Income Event]', event);
-		// 	if (event?.type === 'MEDIAFILES_LIST') {
-		// 		setMediaFiles(event.payload || []); // Safely update state
-		// 	}
-		// };
 
 		const isBroadcast = (event: TaskProc.Event): event is TaskProc.EventBroadcast => {
 			return event?.taskId === 'BROADCAST';
@@ -102,7 +96,8 @@ const Home: React.FC = () => {
 								return newTasks;
 							});
 							// Show success message
-							message.success(`Task ${taskId} completed successfully!`);
+
+							message.success(event?.message ? event.message : `Task completed successfully!`);
 							break;
 
 						// Case for error event (task failed)
@@ -114,7 +109,7 @@ const Home: React.FC = () => {
 								return newTasks;
 							});
 							// Show error message
-							message.error(`Task ${taskId} failed: ${event.payload?.errorMessage || 'Unknown error'}`);
+							message.error('Task failed:' + (event?.message || 'Unknown error'));
 							break;
 
 						// Case for cancelled event (task was cancelled)
@@ -126,7 +121,7 @@ const Home: React.FC = () => {
 								return newTasks;
 							});
 							// Show cancellation message
-							message.warning(`Task ${taskId} was cancelled.`);
+							message.warning(`Task was cancelled.`);
 							break;
 
 						default:
@@ -182,9 +177,9 @@ const Home: React.FC = () => {
 				payload: { downloadFiles: selectedFiles },
 			};
 			await bridge.runTask(task);
-			message.success('Download tasks started.');
+			message.success('Download tasks started');
 		} catch (error) {
-			message.error('Failed to start download tasks.');
+			message.error('Failed to start download tasks');
 		} finally {
 			setIsDownloading(false);
 			setSelectedIds(new Set()); // Reset the selected files after download
@@ -204,9 +199,9 @@ const Home: React.FC = () => {
 				payload,
 			};
 			await bridge.runTask(task); // Call the bridge to execute the delete task
-			message.success('Files deleted successfully.');
+			// message.success('Files deleted successfully');
 		} catch (error) {
-			message.error('Failed to delete files.');
+			message.error('Failed to delete files');
 		} finally {
 			setIsDeleting(false);
 			setSelectedIds(new Set()); // Reset the selected files after delete
@@ -276,80 +271,74 @@ const Home: React.FC = () => {
 				</Row>
 			</div>
 
-			<List
-				bordered
-				dataSource={mediaFiles}
-				renderItem={(file) => (
-					<List.Item>
-						<Collapse
-							items={[
-								{
-									key: file.id,
-									label: (
-										<div className="list-item-header">
-											<div className="header-left">
-												<Checkbox
-													checked={isSelected(file.id)}
-													onClick={stopPropagation}
-													onChange={() => toggleSelectFile(file.id)}
-												/>
-											</div>
+			<Collapse
+				expandIconPosition='end'
+				items={
+					mediaFiles.map((file) => ({
+						key: file.id,
+						label: (
+							<div className="list-item-header">
+								<div className="header-left">
+									<Checkbox
+										checked={isSelected(file.id)}
+										onClick={stopPropagation}
+										onChange={() => toggleSelectFile(file.id)}
+									/>
+								</div>
 
-											<div className="header-center">
-												<div className="file-name">
-													<Paragraph ellipsis={{ rows: 2 }}>{file.source.title}</Paragraph>
-												</div>
-												<Space size="small" align="center" wrap>
-													<Tag color="blue">
-														{file.source.extractor} : {file.source.id}
-													</Tag>
-													<Tooltip title="Copy URL to clipboard">
-														<Button
-															type="text"
-															size="small"
-															icon={<CopyOutlined />}
-															onClick={(e) => {
-																copyUrl(file.source.webpageUrl);
-																stopPropagation(e);
-															}}
-														/>
-													</Tooltip>
-												</Space>
-												<Space size="small" wrap>
-													{file.trackIds.map((track) => (
-														<Tooltip
-															key={track.formatId}
-															title={`${track.format} / ${track.ext}`}
-															placement="bottom"
-														>
-															<Tag color={getTrackType(track)} icon={<CheckmarkCircle />}>
-																{track.formatId}
-															</Tag>
-														</Tooltip>
-													))}
-												</Space>
-											</div>
+								<div className="header-center">
 
-											<div className="header-right">
-												{file.source.thumbnail ? (
-													<img src={file.source.thumbnail} alt="Preview" />
-												) : (
-													<div className="no-preview">No preview</div>
-												)}
-											</div>
-										</div>
-									),
-									children: (
-										<div className="collapse-body">
-											<MediaFileDetails file={file} />
-										</div>
-									),
-								},
-							]}
-						/>
-					</List.Item>
-				)}
+									<Typography.Title ellipsis={{ rows: 2 }} level={5}>{file.source.title}</Typography.Title>
+
+									<Space size="small" align="center" wrap>
+										<Tag color="blue">
+											{file.source.extractor} : {file.source.id}
+										</Tag>
+										<Tooltip title="Copy URL to clipboard">
+											<Button
+												type="text"
+												size="small"
+												icon={<CopyOutlined />}
+												onClick={(e) => {
+													copyUrl(file.source.webpageUrl);
+													stopPropagation(e);
+												}}
+											/>
+										</Tooltip>
+									</Space>
+									<Space size="small" wrap>
+										{file.trackIds.map((track) => (
+											<Tooltip
+												key={track.formatId}
+												title={`${track.format} / ${track.ext}`}
+												placement="bottom"
+											>
+												<Tag color={getTrackType(track)} icon={<CheckmarkCircle />}>
+													{track.formatId}
+												</Tag>
+											</Tooltip>
+										))}
+									</Space>
+								</div>
+
+								<div className="header-right">
+									{file.source.thumbnail ? (
+										<img src={file.source.thumbnail} alt="Preview" />
+									) : (
+										<div className="no-preview">No preview</div>
+									)}
+								</div>
+							</div>
+						),
+						children: (
+							<div className="collapse-body">
+								<MediaFileDetails file={file} />
+							</div>
+						),
+					}))
+				}
 			/>
+
 		</div>
 	);
 };

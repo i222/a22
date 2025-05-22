@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Layout, Menu, Button, Badge } from 'antd';
-import { HomeOutlined, SettingOutlined, PlusOutlined, AppstoreAddOutlined, AppstoreOutlined, AppstoreFilled } from '@ant-design/icons';
+import { Layout, Menu, Button, Badge, Space, Tooltip, Flex } from 'antd';
+import { HomeOutlined, SettingOutlined, PlusOutlined, AppstoreOutlined, AppstoreFilled, DownloadOutlined } from '@ant-design/icons';
 
 import Home from './pages/Home';
 import Settings from './pages/Settings';
 import AddSource from './pages/AddSource';
-import TaskMonitor from './components/TaskMonitor';
+import TaskMonitor from './components/TaskMonitor/TaskMonitor';
+import TaskManager from './pages/TaskManager';
+import TaskManagerIndicator from './components/TaskManagerIndicator/TaskManagerIndicator';
 
 const { Header, Content } = Layout;
 
@@ -33,7 +35,7 @@ export default function App() {
 		<Layout style={{ minHeight: '100vh' }}>
 			{/* Global header with navigation menu */}
 			<Header style={{ display: 'flex', alignItems: 'center' }}>
-				<Menu
+				{/* <Menu
 					theme="dark"
 					mode="horizontal"
 					selectedKeys={[location.pathname]}
@@ -48,6 +50,11 @@ export default function App() {
 							key: '/add-source',
 							icon: <PlusOutlined />,
 							label: <Link to="/add-source">Add Source</Link>,
+						},
+						{
+							key: '/tasks',
+							icon: <TaskManagerIndicator />,
+							label: <Link to="/tasks">Task Manager</Link>,
 						},
 						{
 							key: '/settings',
@@ -71,7 +78,44 @@ export default function App() {
 							// style: { marginLeft: '10px' }, // Add some spacing
 						},
 					]}
-				/>
+				/> */}
+				<Space>
+					<Link to="/">
+						<Button key="/" icon={<HomeOutlined />}>
+							Home
+						</Button>
+					</Link>
+					<Link to="/add-source">
+						<Button key="/add-source" icon={<PlusOutlined />}>
+							Add Source
+						</Button>
+					</Link>
+					<Link to="/tasks">
+						<Button key="/tasks" >
+							<Flex justify={'center'} align={'center'}>
+								<TaskManagerIndicator />
+								Task Manager
+							</Flex>
+						</Button>
+					</Link>
+					<Link to="/settings">
+						<Button key="/settings" icon={<SettingOutlined />}>
+							Settings
+						</Button>
+					</Link>
+					<Link to="">
+						<Tooltip title="Monitoring">
+							<Button
+								key="task-monitor-toggle"
+								type="primary"
+								shape="circle"
+								icon={collapsed ? <AppstoreFilled /> : <AppstoreOutlined />}
+								onClick={toggleCollapse}
+							/>
+						</Tooltip>
+					</Link>
+				</Space>
+
 			</Header>
 
 			{/* Task Monitor Component */}
@@ -82,6 +126,7 @@ export default function App() {
 				<Routes>
 					<Route path="/" element={<Home />} />
 					<Route path="/add-source" element={<AddSource />} />
+					<Route path="/tasks" element={<TaskManager />} />
 					<Route path="/settings" element={<Settings />} />
 				</Routes>
 			</Content>

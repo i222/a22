@@ -17,7 +17,8 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 	if (totalFiles === 0) {
 		emit({
 			type: 'error',
-			payload: 'No files selected for download.',
+			message: 'Error: No files selected for download',
+			payload: null,
 		});
 		return;
 	}
@@ -30,7 +31,11 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 			// Emit message that the file download is starting
 			emit({
 				type: 'progress',
-				payload: `Downloading file ${index + 1}: ${file.source.title} started.`,
+				message: `Downloading file ${index + 1} started, '${file.source.title}'`,
+				payload: {
+					fileId: file.id,
+					stage: 1
+				},
 			});
 
 			// Wait 2 seconds before starting the download for the file
@@ -43,7 +48,12 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 				// Emit message that downloading the track has started
 				emit({
 					type: 'progress',
-					payload: `Downloading track ${trackIndex + 1} (${track.formatId}) for file ${file.source.title} started.`,
+					// message: `Downloading track ${trackIndex + 1} (${track.formatId}) for file ${file.source.title} started.`,
+					message: `Downloading file/track=${index + 1}/${trackIndex + 1}, '${file.source.title}'`,
+					payload: {
+						fileId: file.id,
+						stage: 2
+					},
 				});
 
 				// Simulate the download time for the track (3 seconds)
@@ -52,7 +62,11 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 				// Emit message that download for the track has finished
 				emit({
 					type: 'progress',
-					payload: `Track ${trackIndex + 1} (${track.formatId}) for file ${file.source.title} download finished.`,
+					message: `Downloaded: file/track=${index + 1}/${trackIndex + 1}, '${file.source.title}'`,
+					payload: {
+						fileId: file.id,
+						stage: 3
+					},
 				});
 			}
 
@@ -65,7 +79,11 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 			// Simulate file merging process
 			emit({
 				type: 'progress',
-				payload: `Merging started for file ${index + 1}: ${file.source.title}`,
+				message: `ffmpeg is merging file=${index + 1}, '${file.source.title}'`,
+				payload: {
+					fileId: file.id,
+					stage: 4
+				},
 			});
 			// Wait for the merge process (e.g., 3 seconds)
 			await new Promise(resolve => setTimeout(resolve, 3000));
@@ -73,8 +91,10 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 
 			emit({
 				type: 'progress',
+				message: `File done: ${index + 1}, ${file.source.title}`,
 				payload: {
-					message: `File ready: ${index + 1}: ${file.source.title}`,
+					stage: 5,
+					fileId: file.id,
 					fileSize: '100MB', // Example size
 					filePath: '/path/to/merged/file', // Example path
 				},
@@ -82,8 +102,9 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 		}
 		emit({
 			type: 'result',
+			message: `Success: ${totalFiles} media file${totalFiles > 1 ? 's' : ''} downloaded`,
 			payload: {
-				message: 'All files downloaded'
+				stage: 6,
 			},
 		});
 
@@ -91,7 +112,8 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafilesReqHandler = asy
 		// Emit error event if something goes wrong
 		emit({
 			type: 'error',
-			payload: error.message || 'Error occurred during download or merging.',
+			message: 'Error occurred during download or merging. ' + error.message,
+			payload: { error }
 		});
 	}
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Alert, Button, Space, Tooltip } from 'antd';
 import './TaskMonitor.css';
-import { useBridgeService } from '../contexts/BridgeServiceContext';
+import { useBridgeService } from '../../contexts/BridgeServiceContext';
 
 /**
  * TaskMonitor
@@ -11,7 +11,7 @@ import { useBridgeService } from '../contexts/BridgeServiceContext';
 const TaskMonitor: React.FC<{ toggleCollapsed: unknown }> = ({ toggleCollapsed }) => {
 	const [message, setMessage] = useState<string>(''); // Stores the last message to show in the monitor
 	const [status, setStatus] = useState<'progress' | 'result' | 'error' | ''>(''); // Tracks the current task status
-	const [isCollapsed, setIsCollapsed] = useState<boolean>(true); // Tracks the collapse state of the monitor
+	const [isCollapsed, setIsCollapsed] = useState<boolean>(false); // Tracks the collapse state of the monitor
 	const [openOnMessage, setOpenOnMessage] = useState<boolean>(true); // Flag to auto-open monitor on message arrival
 	const bridge = useBridgeService(); // Access the BridgeService context
 	const isFirstRender = useRef<boolean>(true);
@@ -22,26 +22,10 @@ const TaskMonitor: React.FC<{ toggleCollapsed: unknown }> = ({ toggleCollapsed }
 
 		switch (type) {
 			case 'progress':
-				setStatus('progress');
-				setMessage(`Task ${taskId} is in progress: ${payload}`);
-				// Open the monitor only if it's collapsed and no message is shown yet
-				if (openOnMessage && isCollapsed && !message) {
-					setIsCollapsed(false);
-				}
-				break;
-
 			case 'result':
-				setStatus('result');
-				setMessage(`Task ${taskId} completed successfully!`);
-				// Open the monitor only if it's collapsed and no message is shown yet
-				if (openOnMessage && isCollapsed && !message) {
-					setIsCollapsed(false);
-				}
-				break;
-
 			case 'error':
-				setStatus('error');
-				setMessage(`Task ${taskId} failed: ${payload?.errorMessage || 'Unknown error'}`);
+				setStatus(type);
+				setMessage(event.message);
 				// Open the monitor only if it's collapsed and no message is shown yet
 				if (openOnMessage && isCollapsed && !message) {
 					setIsCollapsed(false);
@@ -52,6 +36,39 @@ const TaskMonitor: React.FC<{ toggleCollapsed: unknown }> = ({ toggleCollapsed }
 				console.log('Unknown task event type', event);
 		}
 	};
+
+	// 	switch (type) {
+	// 		case 'progress':
+	// 			setStatus('progress');
+	// 			setMessage(`Task ${taskId} is in progress: ${payload}`);
+	// 			// Open the monitor only if it's collapsed and no message is shown yet
+	// 			if (openOnMessage && isCollapsed && !message) {
+	// 				setIsCollapsed(false);
+	// 			}
+	// 			break;
+
+	// 		case 'result':
+	// 			setStatus('result');
+	// 			setMessage(`Task ${taskId} completed successfully!`);
+	// 			// Open the monitor only if it's collapsed and no message is shown yet
+	// 			if (openOnMessage && isCollapsed && !message) {
+	// 				setIsCollapsed(false);
+	// 			}
+	// 			break;
+
+	// 		case 'error':
+	// 			setStatus('error');
+	// 			setMessage(`Task ${taskId} failed: ${payload?.errorMessage || 'Unknown error'}`);
+	// 			// Open the monitor only if it's collapsed and no message is shown yet
+	// 			if (openOnMessage && isCollapsed && !message) {
+	// 				setIsCollapsed(false);
+	// 			}
+	// 			break;
+
+	// 		default:
+	// 			console.log('Unknown task event type', event);
+	// 	}
+	// };
 
 	// Subscribe to events
 	useEffect(() => {
@@ -65,7 +82,7 @@ const TaskMonitor: React.FC<{ toggleCollapsed: unknown }> = ({ toggleCollapsed }
 
 	useEffect(() => {
 		if (isFirstRender.current) {
-			isFirstRender.current = false; // Пропускаем первый рендер
+			isFirstRender.current = false; // Skip first toggle
 			return;
 		}
 		setIsCollapsed(!isCollapsed);

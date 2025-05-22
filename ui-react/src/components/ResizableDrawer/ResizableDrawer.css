@@ -1,0 +1,25 @@
+.resizable-drawer-body {
+	position: relative;
+	height: 100%;
+}
+
+/* Граница ресайза справа */
+.resizer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 6px;
+	height: 100%;
+	cursor: ew-resize;
+	z-index: 999;
+	user-select: none;
+	/* optionally for visual feedback */
+	background-color: transparent;
+}
+
+/* Можно добавить ховер для отладки: */
+/*
+.resizer:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+*/

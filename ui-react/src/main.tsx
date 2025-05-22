@@ -10,12 +10,22 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 import { HashRouter } from 'react-router-dom';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary'; // Error handler component
 import 'antd/dist/reset.css'; // Reset Ant Design styles
 import { BridgeServiceProvider } from './contexts/BridgeServiceContext'; // Updated import for BridgeServiceProvider
+
+import { defaultConfig, defaultTheme } from 'antd/es/theme/context';
+import { getComputedToken } from 'antd/es/theme/useToken';
+import { customTheme } from './theme/customTheme';
+
+// const fullToken = defaultTheme.getDerivativeToken(defaultConfig.token);
+// console.log(fullToken, defaultConfig.token, theme.defaultSeed);
+
+// const computed = getComputedToken(theme.defaultSeed, {}, defaultTheme);
+// console.log(computed.token);
 
 // Create root and render the application
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -24,12 +34,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 		<ErrorBoundary>
 			{/* Global UI configuration for Ant Design */}
 			<ConfigProvider
-				theme={{
-					token: {
-						colorPrimary: '#1677ff',
-						borderRadius: 4,
-					},
-				}}
+				theme={customTheme}
 			>
 				{/* BridgeServiceProvider exposes the Bridge service via React context */}
 				<BridgeServiceProvider>

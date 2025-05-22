@@ -1,10 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import { TaskProc } from 'a22-shared';
+import { SequentialTaskProcessor } from './sequential-task-processor';
 
 export class TaskProcessor {
 	private handlers = new Map<string, TaskProc.Handler>();
 	private activeControllers = new Map<string, AbortController>();
 	private emitRaw: (event: TaskProc.Event) => void;
+	private sProcessor: SequentialTaskProcessor = null;
 
 	constructor(emitFn: (event: TaskProc.Event) => void) {
 		this.emitRaw = emitFn;

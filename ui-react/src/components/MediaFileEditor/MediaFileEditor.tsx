@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Card, Input, Button, Space, Tag, Tooltip, Typography, message } from 'antd';
 import { MediaFile, Formatters } from 'a22-shared';
-import TrackSelector from './TrackSelector';
+import TrackSelector from '../TrackSelector/TrackSelector';
 import './MediaFileEditor.css';
 import { CloseOutlined } from '@ant-design/icons';
 

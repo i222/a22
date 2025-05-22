@@ -18,6 +18,7 @@ export const DeleteMediaFilesTask: TaskProc.DeleteMediafilesHandler = async ({ p
 
 	try {
 		// Get the queue service to remove the files
+		const count = deleteFileIds?.length;
 		const queueService = await serviceContainer.queueService;
 		await queueService.removeFiles(deleteFileIds);
 
@@ -25,6 +26,7 @@ export const DeleteMediaFilesTask: TaskProc.DeleteMediafilesHandler = async ({ p
 		// Emit a success result event
 		emit({
 			type: 'result',
+			message: `Success: ${count} media file${count > 1 ? 's' : ''} deleted`,
 			payload: { deleted: deleteFileIds },
 		});
 
@@ -35,6 +37,7 @@ export const DeleteMediaFilesTask: TaskProc.DeleteMediafilesHandler = async ({ p
 		// Emit an error event if something goes wrong
 		emit({
 			type: 'error',
+			message: 'Media files deleting error:' + error.message,
 			payload: error,
 		});
 	}
