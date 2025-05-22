@@ -20,20 +20,22 @@ export const UpdateMediaFileTask: TaskProc.UpdateMediafileHandler = async ({ pay
   try {
     // Get the queue service to update the file
     const queueService = await serviceContainer.queueService;
-    
+
     // Update the file in the queue
     const result = await queueService.update(updatedFile);
 
     // Emit a success result event
     emit({
       type: 'result',
+      message: 'File updated',
       payload: { updated: result },
     });
   } catch (error) {
     // Emit an error event if something goes wrong
     emit({
       type: 'error',
-      payload: error,
+      message: error,
+      payload: null,
     });
   }
 };

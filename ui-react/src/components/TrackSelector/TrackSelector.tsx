@@ -145,10 +145,10 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 			width: 100,
 			defaultSortOrder: 'descend',
 			sorter: (a, b) => (a.br ?? 0) - (b.br ?? 0),
-			render: (size?: number) => filesize((size ?? 0) * 1000, {
+			render: (br?: number) => br && br > 0 ?  filesize((br) * 1000, {
 				round: 2,
 				base: 10,
-			}) + 'ps',
+			}) + 'ps' : '-',
 		},
 		{
 			title: 'Size',
@@ -156,7 +156,7 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 			width: 100,
 			// defaultSortOrder: 'descend',
 			sorter: (a, b) => (a.filesize ?? 0) - (b.filesize ?? 0),
-			render: (size?: number) => filesize(size ?? 0).toString(),
+			render: (size?: number) => size && size > 0 ? filesize(size).toString() : '-',
 		},
 		{
 			title: 'Ext',

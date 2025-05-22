@@ -1,4 +1,4 @@
-// ui-react/src/pages/AddSource.tsx
+// ui-react/src/pages/TaskManager.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, Alert, Space, Spin, Empty, message } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -10,7 +10,7 @@ import { isString } from 'antd/es/button';
 
 const { TextArea } = Input;
 
-export const AddSource: React.FC = () => {
+export const TaskManager: React.FC = () => {
 	const bridge = useBridgeService(); // Using the BridgeService for task management
 	const navigate = useNavigate();
 
@@ -132,7 +132,7 @@ export const AddSource: React.FC = () => {
 
 	return (
 		<Space direction="vertical" size="large" style={{ width: '100%' }}>
-			<Space.Compact style={{ width: '100%' }}>
+			{/* <Space.Compact style={{ width: '100%' }}>
 				<Input
 					placeholder="Enter video URL"
 					value={url}
@@ -148,7 +148,7 @@ export const AddSource: React.FC = () => {
 				>
 					Get Url Info
 				</Button>
-			</Space.Compact>
+			</Space.Compact> */}
 
 			{progress && (
 				<Alert
@@ -186,4 +186,4 @@ export const AddSource: React.FC = () => {
 	);
 };
 
-export default AddSource;
+export default TaskManager;

@@ -1,3 +1,4 @@
+// ui-react/src/services/eventService.ts
 import mitt from 'mitt';
 import { ElectronBridge, TaskProc, MediaFile, RIPIT_BRIDGE_NAME, validateElectronBridge } from 'a22-shared';
 import { A22_ENV_USE_MOCK } from '../env-config';

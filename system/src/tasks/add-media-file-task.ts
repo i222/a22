@@ -23,13 +23,15 @@ export const AddMediaFileTask: TaskProc.AddMediafileHandler = async ({ payload, 
 		// Emit a success result event
 		emit({
 			type: 'result',
+			message: 'Media file successfully added',
 			payload: { success: result },
 		});
 	} catch (error) {
 		// Emit an error event if something goes wrong
 		emit({
 			type: 'error',
-			payload: error,
+			message: 'Media file can\'t be added. Error: ' + error,
+			payload: null,
 		});
 	}
 };

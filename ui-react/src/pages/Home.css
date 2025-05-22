@@ -1,8 +1,7 @@
 .home-container {
-	margin-top: 20px;
+	margin-top: 10px;
 	min-width: 600px;
 	width: 100%;
-
 }
 
 .toolbar {
@@ -34,13 +33,13 @@
 	font-size: 14px;
 }
 
-.file-name {
+/* .file-name {
 	font-weight: 600;
-}
+} */
 
 .header-right {
-	width: 180px;
-	height: 100px;
+	/* width: 180px; */
+	height: 80px;
 	background: #f5f5f5;
 	display: flex;
 	justify-content: center;

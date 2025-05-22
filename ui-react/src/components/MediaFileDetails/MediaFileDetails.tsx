@@ -12,7 +12,7 @@ import {
 import { CopyOutlined, EditOutlined } from '@ant-design/icons';
 import { MediaFile, Formatters } from 'a22-shared';
 import { filesize } from 'filesize';
-import MediaFileEditor from './MediaFileEditor';
+import MediaFileEditor from '../MediaFileEditor/MediaFileEditor';
 import './MediaFileDetails.css';
 
 const { Paragraph, Title } = Typography;

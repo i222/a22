@@ -83,7 +83,11 @@ export const analyzeMediaInfoTask: AnalyzeMediaHandler = async ({ payload, signa
 
 	try {
 		// Emit initial progress
-		emit({ type: 'progress', payload: 'Step 1/2. Detecting media type' });
+		emit({
+			type: 'progress',
+			message: 'Step 1/2. Detecting media type',
+			payload: 'Step 1/2. Detecting media type'
+		});
 
 		// console.log('[TSK][analyzeMediaInfo][step 1]')
 
@@ -140,11 +144,14 @@ export const analyzeMediaInfoTask: AnalyzeMediaHandler = async ({ payload, signa
 		// REVIEW audio?
 		if (rowSource?._type !== 'video') {
 			emit({
-				type: 'error', payload: {
-					type: 'error',
-					count: 0,
-					error: `Video expected, but ${rowSource?._type || 'no media file'} is detected`,
-				}
+				type: 'error',
+				message: `Video expected, but ${rowSource?._type || 'no media file'} is detected`,
+				payload: null,
+				// {
+				// 	type: 'error',
+				// 	count: 0,
+				// 	error: `Video expected, but ${rowSource?._type || 'no media file'} is detected`,
+				// }
 			});
 			return;
 		}
@@ -164,24 +171,30 @@ export const analyzeMediaInfoTask: AnalyzeMediaHandler = async ({ payload, signa
 		}
 
 		// Emit the validated result
-		emit({ type: 'result', payload: validation.data });
+		emit({
+			type: 'result',
+			message: 'Media file information successfully loaded',
+			payload: validation.data
+		});
+
 	} catch (err: any) {
 
 		console.log('[TSK][analyzeMediaInfo][ERROR]', { err, aborted: signal.aborted })
 
 		if (signal.aborted) {
-			emit({ type: 'cancelled', payload: null });
+			emit({ 
+				type: 'cancelled', 
+				message: 'cancelled',
+				payload: null 
+			});
 			return;
 		}
 
 		// Emit structured error in case of failure
 		emit({
 			type: 'error',
-			payload: {
-				type: 'error',
-				count: 0,
-				error: err.message || String(err),
-			},
+			message: 'Load media file info error:' + err.message,
+			payload: null,
 		});
 	}
 };
