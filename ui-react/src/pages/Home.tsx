@@ -173,8 +173,8 @@ const Home: React.FC = () => {
 		setIsDownloading(true);
 		try {
 			const task: TaskProc.Input = {
-				type: 'TID_DOWNLOAD_MEDIAFILES_REQ',
-				payload: { downloadFiles: selectedFiles },
+				type: 'BTID_DOWNLOAD_MEDIAFILES_REQ',
+				payload: selectedFiles,
 			};
 			await bridge.runTask(task);
 			message.success('Download tasks started');
