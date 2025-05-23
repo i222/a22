@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Badge } from 'antd';
 import { DashboardOutlined, LoadingOutlined, RobotOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { useBridgeService } from '../../contexts/BridgeServiceContext';
+import { TaskProc } from 'a22-shared';
 
 /**
  * TaskManagerIndicator
@@ -13,21 +15,27 @@ import { Link } from 'react-router-dom';
  */
 const TaskManagerIndicator = () => {
 	const [taskCount, setTaskCount] = useState(0); // The number of tasks (this is just a mockup)
+	const bridge = useBridgeService(); // Using the BridgeService for task management
 
 	useEffect(() => {
 		// Simulate fetching the task count (can be replaced with actual API call)
-		const fetchTaskCount = () => {
-			setTaskCount(10); // For example, set the task count to 10 (replace with actual logic)
+		// const fetchTaskCount = () => {
+		// 	setTaskCount(10); // For example, set the task count to 10 (replace with actual logic)
+		// };
+		const handleEvent = (event: TaskProc.Event) => {
+			// Check for event type 'SEQ-PROCESSOR-TASKS-LIST' and taskId 'BROADCAST'
+			if (
+				event.type === 'SEQ-PROCESSOR-TASKS-LIST' &&
+				event.taskId === 'BROADCAST'
+			) {
+				const tasks = Array.isArray(event.payload?.tasks) ? event.payload.tasks : [];
+				console.log('[TaskIndicator]', { tasks })
+				setTaskCount(tasks?.length || 0); // Update state with the tasks
+			}
 		};
 
-		fetchTaskCount();
+		bridge.subscribe(handleEvent); // Subscribe to events from BridgeService
 
-		// Optionally, you can add an interval to refresh the task count periodically
-		const interval = setInterval(fetchTaskCount, 5000); // Refresh every 5 seconds
-
-		return () => {
-			clearInterval(interval); // Clean up the interval on component unmount
-		};
 	}, []);
 
 	return (
@@ -35,11 +43,13 @@ const TaskManagerIndicator = () => {
 			<Link to="/tasks" className="task-manager-indicator">
 				<DashboardOutlined className="task-manager-indicator-icon" style={{ fontSize: '16px', }} />
 			</Link>
-			{/* <Badge count={taskCount} overflowCount={99} showZero size="small" className="task-manager-indicator-badge"> */}
-			{/* <Badge count={'*'} size="small"> */}
-			<Badge dot>
+			<Badge count={taskCount} overflowCount={99} showZero size="small" className="task-manager-indicator-badge">
 				<div style={{ height: '12px', }} />
 			</Badge>
+			{/* <Badge count={'*'} size="small">
+				<Badge dot>
+				<div style={{ height: '12px', }} />
+			</Badge> */}
 		</span>
 	);
 };

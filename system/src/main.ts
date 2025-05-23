@@ -12,6 +12,8 @@ import { AddMediaFileTask } from "./tasks/add-media-file-task";
 import { DeleteMediaFilesTask } from "./tasks/delete-media-file-task";
 import { GetMediaFilesReqTask } from "./tasks/get-media-filed-req-task";
 import { DownloadMediaFilesTask } from "./tasks/download-media-files-task";
+import { SequentialTaskProcessor } from "./lib/task-processor/sequential-task-processor";
+import { UpdateMediaFileTask } from "./tasks/update-media-file-task";
 
 const RIPIT_INDEX_FILE = "index.html";
 
@@ -44,7 +46,12 @@ app.whenReady().then(async () => {
 			mainWindow.webContents.send("CID_ON_TASK_PROCESSOR_EVENT", event);
 		});
 
-		linkProcessor(taskProcessor);
+		const taskProcessorSequential = new SequentialTaskProcessor((event) => {
+			// Send task events to the renderer
+			mainWindow.webContents.send("CID_ON_TASK_PROCESSOR_EVENT", event);
+		});
+
+		linkProcessors(taskProcessor, taskProcessorSequential);
 
 		console.log("[Loading]taskProcessor created and linked");
 
@@ -101,26 +108,39 @@ app.whenReady().then(async () => {
 });
 
 
-function linkProcessor(taskProcessor: TaskProcessor) {
+function linkProcessors(taskProcessor: TaskProcessor, taskProcessorSequential: SequentialTaskProcessor) {
 	// Register supported task types
 	try {
-		taskProcessor.register("analyze-media-info", analyzeMediaInfoTask);
+		taskProcessor.register('TID_ANALYZE-MEDIA-INFO', analyzeMediaInfoTask);
 		taskProcessor.register('TID_ADD_MEDIAFILE', AddMediaFileTask);
 		taskProcessor.register('TID_DELETE_MEDIAFILES', DeleteMediaFilesTask);
-		taskProcessor.register('TID_DOWNLOAD_MEDIAFILES_REQ', DownloadMediaFilesTask);
+		taskProcessor.register('TID_UPDATE_MEDIAFILE', UpdateMediaFileTask);
 		taskProcessor.register('TID_GET_MEDIAFILES_REQ', GetMediaFilesReqTask);
-	} catch (e) {
-		console.warn('[MAIN] Warning: It looks like the processor is being linked a second time. Ignored.');
-	}
 
+		taskProcessorSequential.registerBatchTask('BTID_DOWNLOAD_MEDIAFILES_REQ', DownloadMediaFilesTask);
+	} catch (e) {
+		console.warn('[MAIN] Warning: It looks like the processora are being linked a second time. Ignored.');
+	}
 
 	// Register IPC handler to run a task
 	ipcMain.handle("CID_RUN_TASK", async (event, task: TaskProc.Input) => {
 		const { type, payload } = task;
 		try {
 			console.log('[Handle] Run Task', { task });
-			const taskId = taskProcessor.run(task);
-			return taskId;
+
+			if (TaskProc.isBatchTaskType(type)) {
+				const taskIds = taskProcessorSequential.enqueue(task);
+				return taskIds;
+			}
+
+			if (TaskProc.isSingleTaskTypes(type)) {
+				const taskId = taskProcessor.run(task);
+				return taskId;
+			}
+
+			throw new Error('Unknown task type:' + type)
+			// const taskId = taskProcessor.run(task);
+			// return taskId;
 		} catch (err) {
 			console.error(`Failed to start task of type "${type}"`, err);
 			throw err; // This error will propagate to the renderer

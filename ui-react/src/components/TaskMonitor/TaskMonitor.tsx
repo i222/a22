@@ -33,42 +33,9 @@ const TaskMonitor: React.FC<{ toggleCollapsed: unknown }> = ({ toggleCollapsed }
 				break;
 
 			default:
-				console.log('Unknown task event type', event);
+				// console.log('Unknown task event type', event);
 		}
 	};
-
-	// 	switch (type) {
-	// 		case 'progress':
-	// 			setStatus('progress');
-	// 			setMessage(`Task ${taskId} is in progress: ${payload}`);
-	// 			// Open the monitor only if it's collapsed and no message is shown yet
-	// 			if (openOnMessage && isCollapsed && !message) {
-	// 				setIsCollapsed(false);
-	// 			}
-	// 			break;
-
-	// 		case 'result':
-	// 			setStatus('result');
-	// 			setMessage(`Task ${taskId} completed successfully!`);
-	// 			// Open the monitor only if it's collapsed and no message is shown yet
-	// 			if (openOnMessage && isCollapsed && !message) {
-	// 				setIsCollapsed(false);
-	// 			}
-	// 			break;
-
-	// 		case 'error':
-	// 			setStatus('error');
-	// 			setMessage(`Task ${taskId} failed: ${payload?.errorMessage || 'Unknown error'}`);
-	// 			// Open the monitor only if it's collapsed and no message is shown yet
-	// 			if (openOnMessage && isCollapsed && !message) {
-	// 				setIsCollapsed(false);
-	// 			}
-	// 			break;
-
-	// 		default:
-	// 			console.log('Unknown task event type', event);
-	// 	}
-	// };
 
 	// Subscribe to events
 	useEffect(() => {

@@ -78,7 +78,7 @@ export const AddSource: React.FC = () => {
 			await handleCancel(); // Cancel previous task if exists
 
 			const params: TaskProc.Input = {
-				type: 'analyze-media-info',
+				type: 'TID_ANALYZE-MEDIA-INFO',
 				payload: { url: url.trim() }, // Pass URL to the task
 			};
 

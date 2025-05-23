@@ -19,7 +19,6 @@ export class TaskProcessor {
 		this.handlers.set(type, handler);
 	}
 
-	// run(type: string, payload: TaskPayload): string {
 	run(task: TaskProc.Input): string {
 		const { type, payload } = task;
 		const taskId = uuidv4();
