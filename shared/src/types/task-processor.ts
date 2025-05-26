@@ -10,6 +10,10 @@ export namespace TaskProc {
 		'TID_DELETE_MEDIAFILES',
 		'TID_UPDATE_MEDIAFILE',
 		'TID_GET_MEDIAFILES_REQ',
+
+		'TID_APP_SETTINGS_GET_REQ',
+		'TID_APP_SETTINGS_CHANGE_REQ',
+		'TID_APP_SETTINGS_CHANGE_DIR_REQ',
 	] as const;
 
 	// The SingleTaskType type corresponds to the literal types of singleTaskTypes
@@ -156,4 +160,21 @@ export namespace TaskProc {
 	export type TasksStatePushReqPayload = {
 		pushInterval: number;
 	};  // Media files to download
+
+	/**
+	 * 'TID_APP_SETTINGS_GET_REQ',
+	 */
+	export type AppSettings = {
+		baseDownloadDir: string;
+		// ..
+	}
+	export type AppSettingsGetReqPayload = null;
+
+	/**
+	 * 'TID_APP_SETTINGS_CHANGE_DIR_REQ'
+	 */
+	export type AppSettingsChangeDirReqPayload = {
+		changeField: 'baseDownloadDir'; // | 'otherDirField' 
+	};
+
 }

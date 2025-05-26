@@ -47,19 +47,10 @@ export const TaskManager: React.FC = () => {
 	// Columns for the Ant Design Table
 	const columns = [
 		{
-			title: 'Task ID',
-			dataIndex: 'taskId',
-			key: 'taskId',
-		},
-		{
-			title: 'Task Type',
-			dataIndex: 'type',
-			key: 'type',
-		},
-		{
 			title: 'Status',
 			dataIndex: 'status',
 			key: 'status',
+			width: 60,
 			render: (status: string) => {
 				let color = 'geekblue';
 				if (status === 'in progress') {
@@ -70,6 +61,19 @@ export const TaskManager: React.FC = () => {
 				return <Tag color={color}>{status}</Tag>;
 			},
 		},
+		{
+			title: 'Media ID',
+			width: 60,
+			dataIndex: ['payload', 'source', 'id'],
+			key: 'mediaId',
+		},
+		{
+			title: 'File Name',
+			width: 120,
+			dataIndex: ['payload', 'fileName'],
+			key: 'fileName',
+		},
+
 	];
 
 	return (

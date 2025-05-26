@@ -1,27 +1,37 @@
+/*
+  TypeScript configuration for Electron project using electron-store and other packages.
+
+  Changes made to improve compatibility and universality:
+  - Changed "module" and "moduleResolution" to "NodeNext" for better ESM and CommonJS interop.
+  - Enabled "esModuleInterop" and "allowSyntheticDefaultImports" for smoother imports of CommonJS packages.
+  - Enabled "resolveJsonModule" to allow importing JSON files.
+  - Kept "skipLibCheck" to speed up build and avoid type errors in dependencies.
+  - Set "strict" to true for better type safety.
+  - Ensured proper "target" as ESNext for modern JS features.
+  - This config aims to work with electron-store (which is native ESM), Conf, and other common node packages.
+*/
+
 {
-	"compilerOptions": {
-		"target": "ESNext", // Target modern ES features (like async/await, new imports)
-		"module": "CommonJS", // Use CommonJS modules for Electron's main process
-		"esModuleInterop": true, // Allow compatibility between CommonJS and ES modules
-		"skipLibCheck": true, // Skip type checking of node_modules for faster builds
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"allowSyntheticDefaultImports": true,
-		"moduleResolution": "Node", // Resolve modules like Node.js does
-		"baseUrl": ".", // Base directory for resolving paths
-		"outDir": "dist", // Output directory for compiled files
-		"rootDir": "src", // Root directory for source files,
-		"strict": false,
-		// "strictNullChecks": true,
-		"types": [
-			"node"
-		],
-	},
-	"include": [
-		"src/**/*.ts", // Only include the Electron main process code
-		// "../shared/src/**/*" // Files in shared/src (which need to be compiled)
-	],
-	"exclude": [
-		"node_modules" // Exclude dependencies from type checking
-	]
+  "compilerOptions": {
+    "target": "ESNext",                     // Target modern JavaScript features like async/await
+    "module": "NodeNext",                   // Use Node.js native ESM module resolution and support for mixed CommonJS/ESM
+    "moduleResolution": "NodeNext",        // Resolve modules like Node.js with ESM support
+    "esModuleInterop": true,                // Enable interoperability between CommonJS and ES Modules
+    "allowSyntheticDefaultImports": true,  // Allow default imports from modules without a default export
+    "resolveJsonModule": true,              // Support importing JSON files as modules
+    "isolatedModules": true,                 // Ensures each file is treated as an isolated module
+    "skipLibCheck": true,                   // Skip type checking of declaration files for faster builds
+    "baseUrl": ".",                         // Base directory for non-relative module names
+    "outDir": "dist",                       // Output directory for compiled JavaScript files
+    "rootDir": "src",                       // Root directory of input source files
+    "strict": false,                        // Enable all strict type-checking options
+    "types": ["node"],                      // Include Node.js typings
+    "forceConsistentCasingInFileNames": true  // Disallow inconsistent casing in import paths
+  },
+  "include": [
+    "src/**/*.ts"
+, "src/preload.mts"  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

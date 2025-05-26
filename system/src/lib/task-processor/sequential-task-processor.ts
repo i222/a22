@@ -252,31 +252,23 @@ export class SequentialTaskProcessor {
  */
 	private emitQueueState() {
 		// Collect the current state of the queue
-		const tasks = [
-			this.currentTask ? { ...this.currentTask, status: 'in progress' } : null,
-			...this.taskQueue
-				.map(task => ({
-					taskId: task.taskId,
-					type: task.type,
-					status: 'pending',
-				}))
-		].filter(Boolean);
+		const tasks = [];
+
+		if (this.currentTask) {
+			const current = structuredClone(this.currentTask);
+			current['status'] = 'in progress';
+			tasks.push(current)
+		}
+		this.taskQueue
+			.forEach(task => {
+				const t = structuredClone(task);
+				t['status'] = 'pending';
+				tasks.push(structuredClone(t))
+			});
 
 		const queueState = {
-			// queueLength: this.taskQueue.length,
 			tasks
 		};
-
-		// If there is an active task (currently being processed), add it to the queueState
-		// if (this.isProcessing) {
-		// 	// const currentTask = this.c; // The task currently being processed
-		// 	queueState.tasks
-		// 		.unshift({
-		// 			taskId: this.currentTask.taskId,
-		// 			type: this.currentTask.type,
-		// 			status: 'in progress', // Mark the current task as "in progress"
-		// 		});
-		// }
 
 		// Emit the queue state to listeners (broadcast)
 		this.emitRaw({
