@@ -20,17 +20,22 @@
  */
 
 import { BrowserWindow } from "electron";
-import { ConsoleService } from "../lib/services/console-service";
-import { QueueStore } from "../lib/services/queue-store-service";
-import { TypedServiceContainer } from "../lib/services/service-container";
-import { YTDLPService } from "./ytdlp-service";
-import { JsonQueueStore } from "./json-queue-store-service";
+import { ConsoleService } from "../lib/services/console-service.js";
+import { TypedServiceContainer } from "../lib/services/service-container.js";
+import { YTDLPService } from "./ytdlp-service.js";
+import { JsonQueueStore } from "./json-queue-store-service.js";
+import { AbstractQueueStore } from "../lib/services/abstract-queue-store.js";
+import { AbstractConfigStore } from "src/lib/services/abstract-config-store.js";
+import { TaskProc } from "a22-shared";
+import { ElectronConfigStore } from "./electron-config-store.js";
+
 
 // Define the services that will be managed by the container
 interface AppServices {
 	console: ConsoleService;
 	ytdlp: YTDLPService;
-	queue: QueueStore;
+	queue: AbstractQueueStore;
+	settings: AbstractConfigStore<TaskProc.AppSettings>;
 }
 
 /**
@@ -43,6 +48,7 @@ class AppServiceContainer extends TypedServiceContainer<AppServices> {
 		this.register('console', () => new ConsoleService(getWindow));
 		this.register('ytdlp', () => new YTDLPService(getWindow));
 		this.register('queue', () => new JsonQueueStore(getWindow));
+		this.register('settings', () => new ElectronConfigStore<TaskProc.AppSettings>());
 		console.log('[Service Container] core services added');
 	}
 
@@ -57,8 +63,12 @@ class AppServiceContainer extends TypedServiceContainer<AppServices> {
 	}
 
 	// Named getter for queue service
-	get queueService(): Promise<QueueStore> {
+	get queueService(): Promise<AbstractQueueStore> {
 		return this.get('queue');
+	}
+
+	get appSettingsService(): Promise<AbstractConfigStore<TaskProc.AppSettings>> {
+		return this.get('settings');
 	}
 }
 

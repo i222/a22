@@ -78,22 +78,19 @@ const Settings: React.FC = () => {
 				case 'result':
 					// On success, update config and reset loading/saving states
 					setConfig(event.payload as SettingsConfig);
-					setLoading(false);
-					setSaving(false);
 					break;
 				case 'error':
 					// On error, show message and reset loading/saving states
 					setError(event.message || 'Error occurred');
-					setLoading(false);
-					setSaving(false);
 					break;
 				case 'cancelled':
 					// On cancellation, just reset loading/saving states
-					setLoading(false);
-					setSaving(false);
 					break;
 			}
 		};
+
+		setLoading(false);
+		setSaving(false);
 
 		// Subscribe to bridge events
 		bridge.subscribe(handleEvent);

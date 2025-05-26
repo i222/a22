@@ -1,7 +1,7 @@
 // system/src/tasks/update_media_file_task.ts
 
 import { TaskProc } from "a22-shared";
-import { serviceContainer } from "../services/service-container";
+import { serviceContainer } from "../services/service-container.js";
 
 /**
  * Task handler to update a media file in the queue.

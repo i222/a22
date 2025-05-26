@@ -1,5 +1,5 @@
 import path from 'path';
-import { fileExists } from '../utils/file-checks';
+import { fileExists } from '../utils/file-checks.js';
 
 // ---------- Types ----------
 type ProgressStatus =

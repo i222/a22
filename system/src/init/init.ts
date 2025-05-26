@@ -1,8 +1,8 @@
-import { resolveFFmpegUrl, resolveFFprobeUrl, resolveYtDlpUrl } from "../utils/url-resolvers";
-import { downloadFile2 } from "../filedown";
-import { checkAndDownloadBinariesParallel } from "./prepare-bin-files";
+import { resolveFFmpegUrl, resolveFFprobeUrl, resolveYtDlpUrl } from "../utils/url-resolvers.js";
+import { downloadFile2 } from "../filedown.js";
+import { checkAndDownloadBinariesParallel } from "./prepare-bin-files.js";
 import { app } from "electron";
-import { chmodPostProcessor, unzipPostProcessor } from "../utils/postprocessors";
+import { chmodPostProcessor, unzipPostProcessor } from "../utils/postprocessors.js";
 import path from "path";
 
 const RIPIT_RUNTIME_DIR = app.getPath('userData');//path.join(os.tmpdir(), 'ripit_runtime');

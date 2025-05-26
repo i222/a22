@@ -1,7 +1,7 @@
 import * as fsp from 'fs/promises';
 import * as path from 'path';
 import extract from 'extract-zip';
-import { BinItem } from '../init/prepare-bin-files';
+import { BinItem } from '../init/prepare-bin-files.js';
 
 export async function unzipPostProcessor(bin: BinItem, runtimeDir: string): Promise<void> {
 	const filePath = path.join(runtimeDir, bin.files[0]);

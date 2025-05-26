@@ -2,7 +2,7 @@
 import { MediaFile } from "a22-shared";
 
 /** Abstract store interface for queue data */
-export abstract class QueueStore {
+export abstract class AbstractQueueStore {
 	abstract add(file: MediaFile.Data): Promise<boolean>;
 	abstract update(file: MediaFile.Data): Promise<boolean>;
 	abstract removeFiles(ids: string[]): Promise<void>

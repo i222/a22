@@ -15,10 +15,10 @@
  */
 
 import { MediaFile, TaskProc } from 'a22-shared';
-import { RIPIT_YT_DLP_RUN } from '../init/init';
-import { execFileWithAbort } from '../lib/task-processor/run-with-abort';
-import { YDBMappers } from '../lib/yt-dlp/mappers';
-import { SourceFileSchema } from '../utils/validation/media-schemas.zod';
+import { RIPIT_YT_DLP_RUN } from '../init/init.js';
+import { execFileWithAbort } from '../lib/task-processor/run-with-abort.js';
+import { SourceFileSchema } from '../utils/validation/media-schemas.zod.js';
+import { YDBMappers } from '../lib/yt-dlp/mappers.js';
 
 /**
  * Expected payload shape for this task

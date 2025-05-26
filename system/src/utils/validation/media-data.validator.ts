@@ -4,7 +4,8 @@
  */
 
 import { MediaFile } from 'a22-shared';
-import { MediaDataSchema } from './media-schemas.zod';
+import { MediaDataSchema } from './media-schemas.zod.js';
+// import { MediaDataSchema } from './media-schemas.zod';
 
 export namespace MediaFileValidation {
 

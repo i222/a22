@@ -1,5 +1,5 @@
 import { MediaFile } from "a22-shared";
-import { get, isNumber, isString, isBoolean, isPlainObject, isArray, pickBy } from 'lodash';
+import { get, isNumber, isString, isBoolean, isPlainObject, isArray, pickBy } from 'lodash-es';
 
 export namespace YDBMappers {
 
