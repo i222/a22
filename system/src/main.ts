@@ -1,21 +1,29 @@
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import * as path from "path";
 // import contextMenu from "electron-context-menu";
-import { fileExists } from "./utils/file-checks";
-import { appInit } from "./init/init";
-import { serviceContainer } from "./services/service-container";
-import { TaskProcessor } from "./lib/task-processor/task-processor";
-import { analyzeMediaInfoTask } from "./tasks/analyze-media-info-task";
-import { validateIpcInvokeHandlers } from "./utils/brige-checker";
+import { fileExists } from "./utils/file-checks.js";
+import { appInit } from "./init/init.js";
+import { serviceContainer } from "./services/service-container.js";
+import { TaskProcessor } from "./lib/task-processor/task-processor.js";
+import { analyzeMediaInfoTask } from "./tasks/analyze-media-info-task.js";
+import { validateIpcInvokeHandlers } from "./utils/brige-checker.js";
 import { TaskProc } from "a22-shared";
-import { AddMediaFileTask } from "./tasks/add-media-file-task";
-import { DeleteMediaFilesTask } from "./tasks/delete-media-file-task";
-import { GetMediaFilesReqTask } from "./tasks/get-media-filed-req-task";
-import { DownloadMediaFilesTask } from "./tasks/download-media-files-task";
-import { SequentialTaskProcessor } from "./lib/task-processor/sequential-task-processor";
-import { UpdateMediaFileTask } from "./tasks/update-media-file-task";
+import { AddMediaFileTask } from "./tasks/add-media-file-task.js";
+import { DeleteMediaFilesTask } from "./tasks/delete-media-file-task.js";
+import { GetMediaFilesReqTask } from "./tasks/get-media-filed-req-task.js";
+import { DownloadMediaFilesTask } from "./tasks/download-media-files-task.js";
+import { SequentialTaskProcessor } from "./lib/task-processor/sequential-task-processor.js";
+import { UpdateMediaFileTask } from "./tasks/update-media-file-task.js";
+import { AppSettingsGetTask } from "./tasks/app-setting-get-task.js";
+import { AppSettingsChangeTask } from "./tasks/app-setting-change-task.js";
+import { fileURLToPath } from "url";
 
 const RIPIT_INDEX_FILE = "index.html";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+console.log('__dirname:', __dirname);
 
 // Called when the Electron app is ready
 app.whenReady().then(async () => {
@@ -28,7 +36,7 @@ app.whenReady().then(async () => {
 			minHeight: 300,
 			webPreferences: {
 				// Enable preload script and isolate renderer from the main process
-				preload: path.join(__dirname, "preload.js"),
+				preload: path.join(__dirname, "preload/preload.js"),
 				contextIsolation: true,
 				webSecurity: false,
 				nodeIntegration: false,
@@ -116,6 +124,9 @@ function linkProcessors(taskProcessor: TaskProcessor, taskProcessorSequential: S
 		taskProcessor.register('TID_DELETE_MEDIAFILES', DeleteMediaFilesTask);
 		taskProcessor.register('TID_UPDATE_MEDIAFILE', UpdateMediaFileTask);
 		taskProcessor.register('TID_GET_MEDIAFILES_REQ', GetMediaFilesReqTask);
+		taskProcessor.register('TID_APP_SETTINGS_GET_REQ', AppSettingsGetTask);
+		taskProcessor.register('TID_APP_SETTINGS_CHANGE_DIR_REQ', AppSettingsChangeTask);
+
 
 		taskProcessorSequential.registerBatchTask('BTID_DOWNLOAD_MEDIAFILES_REQ', DownloadMediaFilesTask);
 	} catch (e) {

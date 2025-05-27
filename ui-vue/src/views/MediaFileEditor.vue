@@ -69,7 +69,7 @@ import { MediaFile } from 'a22-shared';
 import TrackSelector from './TrackSelector.vue';
 import { Formatters } from 'a22-shared';
 import { RefreshOutline } from '@vicons/ionicons5';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 const props = defineProps<{
 	data: MediaFile.Data;

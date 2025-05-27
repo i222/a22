@@ -1,7 +1,7 @@
 // system/src/tasks/get-media-filed-req-task.ts
 
 import { TaskProc } from "a22-shared";
-import { serviceContainer } from "../services/service-container";
+import { serviceContainer } from "../services/service-container.js";
 
 export const GetMediaFilesReqTask: TaskProc.AddMediafileHandler = async ({ payload, signal, emit }) => {
 	// const { file } = payload;

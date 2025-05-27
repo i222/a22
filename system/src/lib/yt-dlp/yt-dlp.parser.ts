@@ -1,8 +1,8 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { MediaFile } from 'a22-shared';
-import { SourceFileSchema } from '../../utils/validation/media-schemas.zod';
-import { YDBMappers } from './mappers';
+import { SourceFileSchema } from '../../utils/validation/media-schemas.zod.js';
+import { YDBMappers } from './mappers.js';
 
 const execFileAsync = promisify(execFile);
 

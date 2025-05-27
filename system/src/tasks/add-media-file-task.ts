@@ -1,5 +1,5 @@
 import { TaskProc } from "a22-shared";
-import { serviceContainer } from "../services/service-container";
+import { serviceContainer } from "../services/service-container.js";
 
 /**
  * Task handler to add a media file to the queue.

@@ -385,7 +385,7 @@
   integrity sha512-/hnE/qP5ZoGpol0a5mDi45bOd7t3tjYJBjsgCsivow7D48cJeV5l05RD82lPqi7gRiphZM37rnhW1l6ZoCNNnQ==
 
 "a22-shared@file:../shared":
-  version "0.1.5"
+  version "0.1.7"
   dependencies:
     lodash-es "^4.17.21"
     uuid "^11.1.0"

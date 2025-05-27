@@ -119,7 +119,8 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 		{
 			title: '',
 			dataIndex: 'select',
-			width: 40,
+			width: 30,
+			align: 'center',
 			render: (_: any, record: MediaFile.Track) => (
 				<Checkbox
 					checked={selectedIds.includes(record.formatId)}
@@ -130,12 +131,15 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 		{
 			title: 'ID',
 			dataIndex: 'formatId',
-			width: 40,
+			width: 60,
+			minWidth: 50,
+			align: 'left',
 			sorter: (a, b) => a.formatId.localeCompare(b.formatId),
 		},
 		{
 			title: 'Info',
 			dataIndex: 'format',
+			align: 'left',
 			sorter: (a, b) => a.format.localeCompare(b.format),
 		},
 		...youtubeColumns,
@@ -143,9 +147,10 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 			title: 'Bitrate',
 			dataIndex: 'br',
 			width: 100,
+			align: 'left',
 			defaultSortOrder: 'descend',
 			sorter: (a, b) => (a.br ?? 0) - (b.br ?? 0),
-			render: (br?: number) => br && br > 0 ?  filesize((br) * 1000, {
+			render: (br?: number) => br && br > 0 ? filesize((br) * 1000, {
 				round: 2,
 				base: 10,
 			}) + 'ps' : '-',
@@ -154,6 +159,7 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 			title: 'Size',
 			dataIndex: 'filesize',
 			width: 100,
+			align: 'left',
 			// defaultSortOrder: 'descend',
 			sorter: (a, b) => (a.filesize ?? 0) - (b.filesize ?? 0),
 			render: (size?: number) => size && size > 0 ? filesize(size).toString() : '-',
@@ -161,6 +167,7 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 		{
 			title: 'Ext',
 			dataIndex: 'ext',
+			align: 'center',
 			sorter: (a, b) => a.ext.localeCompare(b.ext),
 		},
 	];
@@ -224,6 +231,7 @@ const TrackSelector: React.FC<Props> = ({ tracks, selectedTracks = [], onChange 
 
 			{/* Track table */}
 			<Table
+				style={{ margin: '2px 4px' }}
 				size="small"
 				rowKey="formatId"
 				columns={columns}

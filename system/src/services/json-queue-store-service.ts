@@ -6,14 +6,14 @@
  */
 import path from 'path';
 import { app, BrowserWindow, ipcMain } from 'electron';
-import { QueueStore } from '../lib/services/queue-store-service';
+import { AbstractQueueStore } from '../lib/services/abstract-queue-store.js';
 import { MediaFile, TaskProc } from 'a22-shared';
-import { SafeFileWriter } from '../lib/io/safe-file-writer';
-import { MediaFileValidation } from '../utils/validation/media-data.validator';
-import { FileRotationUtil } from '../utils/file-rotation';
+import { SafeFileWriter } from '../lib/io/safe-file-writer.js';
+import { MediaFileValidation } from '../utils/validation/media-data.validator.js';
+import { FileRotationUtil } from '../utils/file-rotation.js';
 import { IPCConstantsInvoke } from 'a22-shared';
 
-export class JsonQueueStore extends QueueStore {
+export class JsonQueueStore extends AbstractQueueStore {
 	private readonly filePath: string;
 	private readonly writer: SafeFileWriter;
 	private memoryQueue: MediaFile.Data[] = [];
@@ -83,7 +83,7 @@ export class JsonQueueStore extends QueueStore {
 			throw err;
 		}
 
-		console.log('[QueueService][loadStore] done', validQueue, invalidEntries);
+		console.log('[QueueService][loadStore] INVALID COUNT:' + invalidEntries?.length || 'none');
 		return { validQueue, invalidEntries };
 	}
 

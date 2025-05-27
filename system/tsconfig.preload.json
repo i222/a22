@@ -1,0 +1,29 @@
+// system/tsconfig.preload.json
+
+// Separate TypeScript config for Electron preload script.
+// Preload must be compiled to CommonJS (not ESM) because Electron runtime
+// does not support ES modules in preload.
+// Target ES2020 for modern JS features.
+// Enable Node module resolution and interoperability flags
+// for smooth import of CommonJS modules like electron-store.
+// Output compiled files to dist/preload to keep build artifacts organized.
+// Only compiles src/preload.ts to isolate preload build.
+
+// Enable preload script and isolate renderer from the main process
+// preload: path.join(__dirname, "preload/preload.js"),
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "CommonJS",
+		"moduleResolution": "Node",
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"outDir": "dist/preload",
+		"rootDir": "src",
+		"skipLibCheck": true,
+		"strict": false
+	},
+	"include": [
+		"src/preload.ts"
+	]
+}

@@ -1,7 +1,7 @@
 import { MediaFile } from "a22-shared";
 // REWORK - move to a22-shared 
 import { v4 as uuidv4 } from 'uuid';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import { YDU } from "./constants";
 
 export function createMediaFile(

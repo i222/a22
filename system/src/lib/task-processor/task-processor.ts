@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { TaskProc } from 'a22-shared';
-import { SequentialTaskProcessor } from './sequential-task-processor';
+import { SequentialTaskProcessor } from './sequential-task-processor.js';
 
 export class TaskProcessor {
 	private handlers = new Map<string, TaskProc.Handler>();

@@ -1,8 +1,8 @@
 
 import { BrowserWindow, ipcMain } from "electron";
 import { IPCConstantsInvoke, MediaFile } from "a22-shared";
-import { getFileInfoFromYtDlp } from "../lib/yt-dlp/yt-dlp.parser";
-import { RIPIT_YT_DLP_RUN } from "../init/init";
+import { getFileInfoFromYtDlp } from "../lib/yt-dlp/yt-dlp.parser.js";
+import { RIPIT_YT_DLP_RUN } from "../init/init.js";
 
 type Handlers = Array<{ channel: IPCConstantsInvoke, listener: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => (Promise<any>) | (any) }>;
 
