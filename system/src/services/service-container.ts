@@ -28,7 +28,8 @@ import { AbstractQueueStore } from "../lib/services/abstract-queue-store.js";
 import { AbstractConfigStore } from "src/lib/services/abstract-config-store.js";
 import { TaskProc } from "a22-shared";
 import { ElectronConfigStore } from "./electron-config-store.js";
-
+import path from "path";
+import os from 'os';
 
 // Define the services that will be managed by the container
 interface AppServices {
@@ -36,6 +37,17 @@ interface AppServices {
 	ytdlp: YTDLPService;
 	queue: AbstractQueueStore;
 	settings: AbstractConfigStore<TaskProc.AppSettings>;
+}
+
+const defaultAppSettings: TaskProc.AppSettings = {
+	baseDownloadDir: path.join(os.homedir(), 'Downloads'),
+};
+
+const configSchema = {
+	baseDownloadDir: {
+		type: 'string',
+		default: path.join(os.homedir(), 'Downloads'),
+	},
 }
 
 /**
@@ -48,7 +60,7 @@ class AppServiceContainer extends TypedServiceContainer<AppServices> {
 		this.register('console', () => new ConsoleService(getWindow));
 		this.register('ytdlp', () => new YTDLPService(getWindow));
 		this.register('queue', () => new JsonQueueStore(getWindow));
-		this.register('settings', () => new ElectronConfigStore<TaskProc.AppSettings>());
+		this.register('settings', () => new ElectronConfigStore<TaskProc.AppSettings>('config', defaultAppSettings, configSchema));
 		console.log('[Service Container] core services added');
 	}
 

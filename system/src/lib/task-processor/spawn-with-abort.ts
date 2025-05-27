@@ -1,3 +1,4 @@
+// system/src/lib/task-processor/spawn-with-abort.ts
 import { spawn, SpawnOptions } from 'child_process';
 
 const gracefulKillSignal: NodeJS.Signals = 'SIGTERM';

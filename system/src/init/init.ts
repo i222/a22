@@ -5,13 +5,13 @@ import { app } from "electron";
 import { chmodPostProcessor, unzipPostProcessor } from "../utils/postprocessors.js";
 import path from "path";
 
-const RIPIT_RUNTIME_DIR = app.getPath('userData');//path.join(os.tmpdir(), 'ripit_runtime');
-const RIPIT_YT_DLP_BIN = process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp';
-export const RIPIT_YT_DLP_RUN = path.join(RIPIT_RUNTIME_DIR, RIPIT_YT_DLP_BIN);
+export const A22_RUNTIME_DIR = app.getPath('userData');//path.join(os.tmpdir(), 'ripit_runtime');
+const A22_YT_DLP_BIN = process.platform === 'win32' ? 'yt-dlp.exe' : 'yt-dlp';
+export const A22_YT_DLP_RUN = path.join(A22_RUNTIME_DIR, A22_YT_DLP_BIN);
 
 const binFiles = [{
 	files: [
-		RIPIT_YT_DLP_BIN
+		A22_YT_DLP_BIN
 	],
 	url: resolveYtDlpUrl(),
 	dowloader: downloadFile2,
@@ -44,7 +44,7 @@ const binFiles = [{
 ];
 
 export async function appInit(): Promise<void> {
-	await checkAndDownloadBinariesParallel(binFiles, RIPIT_RUNTIME_DIR, (progress) => {
+	await checkAndDownloadBinariesParallel(binFiles, A22_RUNTIME_DIR, (progress) => {
 		console.log(`[${progress.status}]`, progress.params);
 	});
 	console.log('✅ All binaries checked/downloaded successfully');

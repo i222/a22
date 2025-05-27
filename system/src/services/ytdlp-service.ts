@@ -2,7 +2,7 @@
 import { BrowserWindow, ipcMain } from "electron";
 import { IPCConstantsInvoke, MediaFile } from "a22-shared";
 import { getFileInfoFromYtDlp } from "../lib/yt-dlp/yt-dlp.parser.js";
-import { RIPIT_YT_DLP_RUN } from "../init/init.js";
+import { A22_YT_DLP_RUN } from "../init/init.js";
 
 type Handlers = Array<{ channel: IPCConstantsInvoke, listener: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => (Promise<any>) | (any) }>;
 
@@ -21,6 +21,6 @@ export class YTDLPService {
 	}
 
 	public getSourceInfo: (_event: Electron.IpcMainInvokeEvent, url: string) => Promise<MediaFile.SourceFile | MediaFile.UrlInfo> =
-		async (_event, url) => getFileInfoFromYtDlp(RIPIT_YT_DLP_RUN, url);
+		async (_event, url) => getFileInfoFromYtDlp(A22_YT_DLP_RUN, url);
 
 }

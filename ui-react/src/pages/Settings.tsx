@@ -87,10 +87,10 @@ const Settings: React.FC = () => {
 					// On cancellation, just reset loading/saving states
 					break;
 			}
-		};
 
-		setLoading(false);
-		setSaving(false);
+			setLoading(false);
+			setSaving(false);
+		};
 
 		// Subscribe to bridge events
 		bridge.subscribe(handleEvent);
