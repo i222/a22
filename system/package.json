@@ -89,6 +89,7 @@
 	},
 	"dependencies": {
 		"a22-shared": "file:../shared",
+		"check-disk-space": "^3.4.0",
 		"electron-dl": "^4.0.0",
 		"electron-store": "^10.0.1",
 		"extract-zip": "^2.0.1",

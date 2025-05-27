@@ -10,6 +10,9 @@ import { filesize } from "filesize";
 import { A22_RUNTIME_DIR, A22_YT_DLP_RUN } from "../init/init.js";
 import { execFileWithAbort, execWithAbort } from "../lib/task-processor/run-with-abort.js";
 import { getFileSizeSync } from "../utils/file-checks.js";
+import checkDiskSpace from 'check-disk-space'
+
+const A22_PENDING_DIR_NAME = 'pending';
 
 /**
  * [#34]
@@ -116,25 +119,17 @@ function calculateRequiredSpace(file: any): number {
 async function checkFreeSpace(targetPath: string, requiredBytes: number) {
 	const ABSOLUTE_LIMIT_BYTES = 30 * 1024 * 1024 * 1024; // 30GB
 
-	// Use 'df' command to get free space on Unix-like systems
-	// This is a simple implementation, for cross-platform use consider external libs
-	const diskInfo = execSync(`df -k "${targetPath}"`).toString();
-	const lines = diskInfo.trim().split('\n');
-	if (lines.length < 2) {
-		throw new Error('Failed to get disk space information');
-	}
-	const parts = lines[1].split(/\s+/);
-	const freeKbytes = parseInt(parts[3], 10);
-	const freeBytes = freeKbytes * 1024;
+	const diskSpace = await (checkDiskSpace as any)(targetPath);
+	console.log(`[Download] Free/Total space: ${filesize(diskSpace.free)}/${filesize(diskSpace.size)}`);
 
-	if (freeBytes < requiredBytes) {
-		throw new Error(`Not enough disk space. Required: ${(requiredBytes / 1e9).toFixed(2)} GB, Available: ${(freeBytes / 1e9).toFixed(2)} GB`);
+	if (diskSpace.free < requiredBytes) {
+		throw new Error(`Not enough disk space. Required: ${filesize(requiredBytes)}, Available: ${diskSpace.free}`);
 	}
 
-	if (freeBytes > ABSOLUTE_LIMIT_BYTES) {
+	if (diskSpace.free > ABSOLUTE_LIMIT_BYTES) {
 		// Cap freeBytes at absolute limit if more
 		if (requiredBytes > ABSOLUTE_LIMIT_BYTES) {
-			throw new Error(`Required disk space exceeds absolute limit of 30GB`);
+			throw new Error(`Required disk space exceeds absolute limit of ${filesize(requiredBytes)}`);
 		}
 	}
 
@@ -156,7 +151,7 @@ async function prepareDownload(baseDownloadDir: string, file: any): Promise<stri
 	await fs.mkdir(baseDownloadDir, { recursive: true });
 
 	// Create 'pending' subdirectory for downloads
-	const pendingDir = path.join(baseDownloadDir, 'pending');
+	const pendingDir = path.join(baseDownloadDir, A22_PENDING_DIR_NAME);
 	await fs.mkdir(pendingDir, { recursive: true });
 
 	// Calculate required disk space and check free space
