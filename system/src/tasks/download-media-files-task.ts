@@ -58,7 +58,7 @@ export const DownloadMediaFilesTask: TaskProc.DownloadMediafileReqHandlerSingle 
 		}
 
 		// Generate chapter track if needed
-		const chapterFilePath = await generateChapterTrack(file, baseDownloadDir, emit);
+		const chapterFilePath = await generateChapterTrack(file, pendingDir, emit);
 
 		console.log('[DownloadMediaFilesTask] chapterFilePath=' + chapterFilePath);
 
@@ -191,13 +191,12 @@ async function generateChapterTrack(file: any, baseDir: string, emit: Function):
 
 		const chapters = file.source.eData.chapters;
 
-		// Формат ffmetadata для глав: https://trac.ffmpeg.org/wiki/ChapterMetadata
+		// ffmetadata format for chapters: https://trac.ffmpeg.org/wiki/ChapterMetadata
 		let metadataContent = ';FFMETADATA1\n';
 
 		chapters.forEach((chapter: any, index: number) => {
-			// предполагаем, что chapters содержат start и end время в секундах и title
-			const start = Math.floor((chapter.start || 0) * 1000); // миллисекунды
-			const end = Math.floor((chapter.end || 0) * 1000);
+			const start = Math.floor((chapter.start_time || 0) * 1000);
+			const end = Math.floor((chapter.end_time || 0) * 1000);
 			const title = chapter.title ? chapter.title.replace(/\n/g, ' ') : `Chapter ${index + 1}`;
 
 			metadataContent += `[CHAPTER]\nTIMEBASE=1/1000\nSTART=${start}\nEND=${end}\ntitle=${title}\n\n`;
@@ -333,7 +332,7 @@ export async function downloadTrack(
 export async function mergeTracks(
 	file: MediaFile.Data,
 	pendingDir: string,
-	chapterFilePath: string | null,
+	chapterFilePath: string | null, // chapters file
 	baseDownloadDir: string,
 	emit: (event: any) => void,
 	signal?: AbortSignal,
@@ -360,14 +359,14 @@ export async function mergeTracks(
 	// }
 	file.trackIds
 		.forEach(track => {
-		const finalPath = getFilePathWithMarker(file, track, pendingDir, '+');
-		const fileSize = getFileSizeSync(finalPath);
-		if (fileSize <= 0) {
-			throw new Error('Downloaded track not found');
-		}
-		inputFiles.push(finalPath);
-		console.log(`[mergeTracks] track ${track.formatId} prepared, size=${filesize(fileSize)}`);
-	});
+			const finalPath = getFilePathWithMarker(file, track, pendingDir, '+');
+			const fileSize = getFileSizeSync(finalPath);
+			if (fileSize <= 0) {
+				throw new Error('Downloaded track not found');
+			}
+			inputFiles.push(finalPath);
+			console.log(`[mergeTracks] track ${track.formatId} prepared, size=${filesize(fileSize)}`);
+		});
 
 	if (inputFiles.length === 0) {
 		throw new Error(`No track are found for merging`);
