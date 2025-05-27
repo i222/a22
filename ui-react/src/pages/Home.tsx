@@ -125,7 +125,7 @@ const Home: React.FC = () => {
 							break;
 
 						default:
-							console.log('Unknown task event type', event);
+							// console.log('Unknown task event type', event);
 					}
 				}
 			}

@@ -15,7 +15,7 @@
  */
 
 import { MediaFile, TaskProc } from 'a22-shared';
-import { RIPIT_YT_DLP_RUN } from '../init/init.js';
+import { A22_YT_DLP_RUN } from '../init/init.js';
 import { execFileWithAbort } from '../lib/task-processor/run-with-abort.js';
 import { SourceFileSchema } from '../utils/validation/media-schemas.zod.js';
 import { YDBMappers } from '../lib/yt-dlp/mappers.js';
@@ -37,7 +37,7 @@ type AnalyzeMediaPayload = {
 export async function getPlaylistInfo(url: string, signal: AbortSignal): Promise<MediaFile.UrlInfo> {
 	// try {
 	const playlistResult = await execFileWithAbort({
-		file: RIPIT_YT_DLP_RUN,
+		file: A22_YT_DLP_RUN,
 		args: ['--dump-single-json', '--flat-playlist', '--skip-download', url],
 		signal,
 	});
@@ -128,7 +128,7 @@ export const analyzeMediaInfoTask: AnalyzeMediaHandler = async ({ payload, signa
 
 		// Step 2: Get detailed metadata for a single video
 		const detailResult = await execFileWithAbort({
-			file: RIPIT_YT_DLP_RUN,
+			file: A22_YT_DLP_RUN,
 			args: ['--dump-single-json', '--flat-playlist', '--skip-download', url],
 			signal,
 		});

@@ -1,6 +1,7 @@
 # some tmp files
 mocks/
 info/
+.vscode
 
 # macOS system files
 .DS_Store

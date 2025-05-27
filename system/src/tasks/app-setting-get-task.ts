@@ -1,20 +1,18 @@
 // system/src/tasks/get-app-setting-task.ts
 
 import { TaskProc } from "a22-shared";
-// import { serviceContainer } from "../services/service-container";
+import { serviceContainer } from "../services/service-container.js";
 
 export const AppSettingsGetTask: TaskProc.Handler = async ({ payload, signal, emit }) => {
 
 	try {
-		// Get from storage
-		const appSettings: TaskProc.AppSettings = {
-			baseDownloadDir: '/Download'
-		}
+		const service = await serviceContainer.appSettingsService;
+		const storedSettings = service.getConfig();
 
 		// Emit a success result event
 		emit({
 			type: 'result',
-			payload: appSettings,
+			payload: storedSettings,
 		});
 	} catch (error) {
 		// Emit an error event if something goes wrong
