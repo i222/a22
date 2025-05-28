@@ -1,4 +1,5 @@
 // m-build.js
+// v0.0.2
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -75,34 +76,40 @@ function copyDirectory(src, dest) {
 async function main() {
 	console.log('--- Starting Build Process ---');
 
-	console.log('\n[!] Building `shared lib`...');
+	console.log('\n[!] -- Building Shared lib...');
 	runCommand('yarn build', LIB_SHARED_DIR);  // Build the Electron part
 
 	// 1. Build `system` and copy to final /dist/system
-	console.log('\n[!] Building `system`...');
-	console.log('\n   Clearing ' + FINAL_DIST_DIR);
+	console.log('\n[!] -- Building Sytem unit...');
+	console.log('\n   - Clearing ' + FINAL_DIST_DIR);
 	fs.rmSync(FINAL_DIST_DIR, { recursive: true, force: true });
-	runCommand('yarn build:prod', SYSTEM_DIR);  // Build the Electron part
+	console.log('\n   - Building... ');
+	runCommand('yarn build', SYSTEM_DIR);  // Build the Electron part
 	
 	// 2. Build `ui-react`
-	console.log('\n[!] Building `ui-react`...');
+	console.log('\n[!] -- Building UI react unit...');
+	console.log('\n   - Clearing ' + UI_REACT_DIR);
 	fs.rmSync(path.join(UI_REACT_DIR, 'dist'), { recursive: true, force: true });
+	console.log('\n   - Building... ');
 	runCommand('yarn build:prod', UI_REACT_DIR);  // Build React UI
 
 	// 3. Build `ui-vue`
+	console.log('\n[!] -- Building UI react unit...');
+	console.log('\n   - Skipped ');
 	// console.log('\n[!] Building `ui-vue`...');
 	// fs.rmSync(path.join(UI_VUE_DIR, 'dist'), { recursive: true, force: true });
 	// runCommand('yarn build:prod', UI_VUE_DIR);  // Build Vue UI
 
 	// Copying files
 
-	console.log(`\n[!] Copying static files to the final distribution folder...`);
+	console.log(`\n[!]--- Copying files`);
+	console.log(`\n[!]  - Copying static files to the final distribution folder...`);
 	copyDirectory(SYSTEM_STATIC_DIR, UI_DIST_ROOT_DIR);
 
 	// console.log(`\n[!] Copying ui-vue files to the final distribution folder...`);
 	// copyDirectory(path.join(UI_VUE_DIR, 'dist'), UI_DIST_VUE_DIR);
 
-	console.log(`\n[!] Copying ui-react files to the final distribution folder...`);
+	console.log(`\n[!]  - Copying ui-react files to the final distribution folder...`);
 	copyDirectory(path.join(UI_REACT_DIR, 'dist'), UI_DIST_REACT_DIR);	
 
 	// 5. Build the Electron app for a specific platform

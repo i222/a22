@@ -2,11 +2,14 @@
   "name": "a22-react-ui",
   "version": "1.0.0",
   "scripts": {
+    "clear": "rm -rf node_modules/a22-shared yarn.lock",
+    "up": "yarn clear && yarn",
+    "clear:full": "rm -rf node_modules yarn.lock",
     "libs:up": "yarn upgrade a22-shared --latest",
     "dev": "vite --mode mock",
+    "preview": "vite preview",
     "build": "vite build",
-    "build:prod": "yarn libs:up && yarn && vite build",
-    "preview": "vite preview"
+    "build:prod": "yarn up && vite build"
   },
   "dependencies": {
     "a22-shared": "file:../shared",
@@ -25,5 +28,6 @@
     "mitt": "^3.0.1",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
-  }
+  },
+  "license": "MIT"
 }
