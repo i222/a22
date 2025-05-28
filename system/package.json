@@ -1,17 +1,18 @@
 {
 	"name": "a22-multy-app",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"main": "dist/main.js",
 	"scripts": {
-		"clean": "rm -rf node_modules yarn.lock",
-		"clean:lite": "rm -rf node_modules/a22-shared yarn.lock",
+		"clear": "rm -rf node_modules/a22-shared yarn.lock",
+		"up": "yarn clear && yarn",
+		"clear:full": "rm -rf node_modules yarn.lock",
 		"libs:up": "yarn upgrade a22-shared --latest",
-		"build": "yarn libs:up && yarn && yarn tsc && yarn tsc -p tsconfig.preload.json",
-		"build:prod": "yarn && yarn libs:up && yarn && yarn tsc",
-		"go": "(electron . --no-sandbox) 2>&1 | grep -v 'eglQueryDeviceAttribEXT'",
-		"go2": "yarn build && yarn tsc && electron .",
-		"go3": "(yarn build && yarn tsc && electron .) 2>&1 | grep -v 'eglQueryDeviceAttribEXT'",
-		"release:mac": "yarn build:prod && electron-builder --mac"
+		"ts": "yarn tsc && yarn tsc -p tsconfig.preload.json",
+		"build": "yarn up && yarn ts",
+		"go": "(electron .) 2>&1 | grep -v 'eglQueryDeviceAttribEXT'",
+		"go:win": "electron . --no-sandbox",
+		"release:mac": "yarn build && electron-builder --mac",
+		"release:win": "yarn build && electron-builder --win"
 	},
 	"keywords": [],
 	"author": "",
@@ -99,5 +100,5 @@
 		"uuid": "^11.1.0",
 		"zod": "3.24.3"
 	},
-	"description": ""
+	"description": "https://github.com/i222/a22"
 }

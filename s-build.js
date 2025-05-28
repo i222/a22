@@ -75,7 +75,7 @@ async function main() {
 	console.log('\n[!] Building `system`...');
 	console.log('\n   Clearing ' + FINAL_DIST_DIR);
 	fs.rmSync(FINAL_DIST_DIR, { recursive: true, force: true });
-	runCommand('yarn build:prod', SYSTEM_DIR);  // Build the Electron part
+	runCommand('yarn build', SYSTEM_DIR);  // Build the Electron part
 	
 	// 2. Build `ui-react`
 	console.log('\n[!] Building `ui-react`...');
