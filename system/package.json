@@ -3,9 +3,8 @@
 	"version": "0.1.1",
 	"main": "dist/main.js",
 	"scripts": {
-		"clear": "rm -rf node_modules/a22-shared yarn.lock",
+		"clear": "node ../rm.js 0",
 		"up": "yarn clear && yarn",
-		"clear:full": "rm -rf node_modules yarn.lock",
 		"libs:up": "yarn upgrade a22-shared --latest",
 		"ts": "yarn tsc && yarn tsc -p tsconfig.preload.json",
 		"build": "yarn up && yarn ts",
