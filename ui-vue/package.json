@@ -2,11 +2,10 @@
 	"name": "a22-multy-app-ui-vue",
 	"version": "0.1.0",
 	"scripts": {
-		"libs:up": "yarn upgrade a22-shared --latest",
 		"dev": "vite",
-		"build:prod": "yarn libs:up && yarn && vite build",
+		"preview": "vite preview",
 		"build": "vite build",
-		"preview": "vite preview"
+		"build:prod": "yarn&& vite build"
 	},
 	"dependencies": {
 		"@vicons/ionicons5": "^0.13.0",

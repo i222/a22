@@ -18,14 +18,14 @@ const binFiles = [{
 	postProcessor: chmodPostProcessor,
 },
 {
-	files: ['ffmpeg'],
+	files: [process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg'],
 	url: resolveFFmpegUrl(),
 	ext: '.zip',
 	dowloader: downloadFile2,
 	postProcessor: unzipPostProcessor,
 },
 {
-	files: ['ffprobe'],
+	files: [process.platform === 'win32' ? 'ffprobe.exe' : 'ffprobe'],
 	url: resolveFFprobeUrl(),
 	ext: '.zip',
 	dowloader: downloadFile2,

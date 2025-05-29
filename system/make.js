@@ -1,14 +1,18 @@
-// m-build.js
-// v0.0.2
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+// === Prepare dist for local electron run
+// v0.0.1
+import { execSync } from 'child_process';
+import fs from 'fs'
+import path from 'path';
+import { fileURLToPath } from "url";
 
 // Root directory paths
-const ROOT_DIR = path.resolve(__dirname);
+const ROOT_DIR = ".."; //path.resolve(__dirname);
 // Sourses
 const LIB_SHARED_DIR = path.join(ROOT_DIR, 'shared');
-const SYSTEM_DIR = path.join(ROOT_DIR, 'system');
+
+const __filename = fileURLToPath(import.meta.url);
+const SYSTEM_DIR = path.dirname(__filename); // path.join(ROOT_DIR, 'system');
+
 const UI_REACT_DIR = path.join(ROOT_DIR, 'ui-react');
 const UI_VUE_DIR = path.join(ROOT_DIR, 'ui-vue');
 const SYSTEM_STATIC_DIR = path.join(SYSTEM_DIR, 'static');
@@ -17,7 +21,6 @@ const FINAL_DIST_DIR = path.join(SYSTEM_DIR, 'dist');
 const UI_DIST_ROOT_DIR = path.join(FINAL_DIST_DIR, 'ui');
 const UI_DIST_REACT_DIR = path.join(UI_DIST_ROOT_DIR, 'react');
 const UI_DIST_VUE_DIR = path.join(UI_DIST_ROOT_DIR, 'vue');
-
 
 /**
  * Execute a terminal command within a specific directory.
@@ -30,7 +33,7 @@ function runCommand(command, cwd = ROOT_DIR) {
 	try {
 		execSync(command, { stdio: 'inherit', cwd });
 	} catch (error) {
-		console.error(`Error while running command: ${command}`);
+		console.error(`Error while running command: ${command}`, error);
 		process.exit(1);
 	}
 }
