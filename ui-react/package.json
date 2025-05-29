@@ -2,13 +2,10 @@
 	"name": "a22-react-ui",
 	"version": "1.0.0",
 	"scripts": {
-		"clear": "node ../rm.js 1",
-		"up": "yarn clear && yarn",
-		"libs:up": "yarn upgrade a22-shared --latest",
 		"dev": "vite --mode mock",
 		"preview": "vite preview",
 		"build": "vite build",
-		"build:prod": "yarn up && vite build"
+		"build:prod": "yarn && vite build"
 	},
 	"dependencies": {
 		"a22-shared": "file:../shared",

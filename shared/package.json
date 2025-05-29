@@ -4,7 +4,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "yarn && yarn tsc"
+    "rm:all": "node rm.js",
+    "build": "yarn && yarn tsc && yarn rm:all"
   },
   "dependencies": {
     "uuid": "^11.1.0",
