@@ -58,9 +58,10 @@ export function spawnWithAbort(
 	if (signal?.aborted) {
 		return Promise.resolve({ doneCode: 'aborted' });
 	}
-
+	
 	const child = spawn(command, args, {
 		stdio: 'pipe',
+		shell: false,
 		...spawnOpts,
 	}) as ChildProcessWithoutNullStreams;
 
