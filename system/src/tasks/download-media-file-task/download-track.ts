@@ -35,7 +35,7 @@ export async function downloadTrack(
 	signal: AbortSignal,
 ): Promise<void> {
 	const finalPath = getFilePathWithMarker(file, track, pendingDir, '+');
-	const tempPath = getFilePathWithMarker(file, track, pendingDir, '*');
+	const tempPath = getFilePathWithMarker(file, track, pendingDir,'o');
 
 	try {
 		await fs.access(finalPath);
