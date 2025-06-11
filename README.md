@@ -1,4 +1,5 @@
 # Multi-UI Electron Demo Application
+## UI for yt-dlp tool
 
 This is a test project demonstrating a **multi-platform Electron application** with multiple frontend UI implementations. The purpose is to explore how different frameworks (React and Vue) can be integrated into a single Electron-based desktop application.
 
@@ -49,6 +50,9 @@ This is a test project demonstrating a **multi-platform Electron application** w
 - Application build completed  
 - Most features work except file downloading (currently under testing)  
 - Download process needs stabilization  
+
+#### Linux
+- Future plans
 
 ---
 
