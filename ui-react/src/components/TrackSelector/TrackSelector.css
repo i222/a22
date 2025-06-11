@@ -1,0 +1,12 @@
+.track-row-audio {
+	background-color: #fffbe6; /* light yellow */
+}
+.track-row-video {
+	background-color: #f6ffed; /* light green */
+}
+.track-row-mixed {
+	background-color: #fff1f0; /* light red */
+}
+.track-row-other {
+	background-color: #f0f0f0; /* light gray */
+}

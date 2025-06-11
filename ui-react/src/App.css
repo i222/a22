@@ -1,0 +1,9 @@
+/* Make the Collapse component take up the full width */
+.ant-collapse {
+  width: 100%;  /* Ensure Collapse takes up the full available width */
+}
+
+/* Make sure the content inside the Collapse also stretches fully */
+.ant-collapse-content {
+  width: 100%;  /* Ensure content stretches to fill the available width */
+}
