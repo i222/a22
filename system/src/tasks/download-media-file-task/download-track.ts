@@ -1,6 +1,6 @@
 // system/src/tasks/download-media-file-task/download-track.ts
 import { MediaFile, TaskProc } from "a22-shared";
-import { getFilePathWithMarker } from "./utils.js";
+import { FormatProgressFn, getFilePathWithMarker } from "./utils.js";
 import fs from 'fs/promises';
 import path from 'path';
 import { getFileSizeSync } from "../../utils/file-checks.js";
@@ -35,7 +35,7 @@ export async function downloadTrack(
 	signal: AbortSignal,
 ): Promise<void> {
 	const finalPath = getFilePathWithMarker(file, track, pendingDir, '+');
-	const tempPath = getFilePathWithMarker(file, track, pendingDir,'o');
+	const tempPath = getFilePathWithMarker(file, track, pendingDir, '*');
 
 	try {
 		await fs.access(finalPath);
@@ -68,8 +68,16 @@ export async function downloadTrack(
 		], {
 			signal,
 			// Use spawnWithAbort with stdout/stderr callbacks to track progress
-			onStdoutData: (chunk) => CLOutParsers.handleCombinedStreamData(chunk, fileId, emit, streamState, 'Downloading track', CLOutParsers.parseProgress),
-			onStderrData: (chunk) => CLOutParsers.handleCombinedStreamData(chunk, fileId, emit, streamState, 'Downloading track', CLOutParsers.parseProgress),
+			onStdoutData: (chunk) => CLOutParsers.handleCombinedStreamData(
+				chunk, fileId, emit, streamState, 'Downloading track',
+				CLOutParsers.parseProgress,
+				FormatProgressFn,
+			),
+			onStderrData: (chunk) => CLOutParsers.handleCombinedStreamData(
+				chunk, fileId, emit, streamState, 'Downloading track',
+				CLOutParsers.parseProgress,
+				FormatProgressFn,
+			),
 		});
 
 		const logs = streamState.logs;

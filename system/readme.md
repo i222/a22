@@ -10,6 +10,8 @@ This is an Electron application with two user interface modes:
 ---
 
 ## Main Commands for Users
+All command used in **system** unit folder
+
 
 ### Build and run the app with React UI (Single UI)
 
@@ -127,3 +129,9 @@ To build and run the application from scratch, please follow these steps:
 4. **Build and run the application**  
    Run one of the commands described below to build and start the app.
 
+5. After that you should build the **A22 shared library**
+
+```
+cd shared
+yarn build
+```
