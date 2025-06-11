@@ -1,6 +1,8 @@
 import { ElectronBridge, TaskProc, MediaFile } from 'a22-shared';
 import { v4 as uuidv4 } from 'uuid';
-import { mockedSource } from './ mockSource';
+import { mockedSource } from './mockSource';
+import { mockYouTube } from './mockYoutube';
+import { mockList } from './mockList';
 
 type TaskHandler = (event: TaskProc.Event) => void;
 
@@ -11,6 +13,16 @@ export class MockTaskProcessor {
 	public runTask = async (task: TaskProc.Input): Promise<string> => {
 		const taskId = uuidv4();
 		console.log(`[MockTaskProcessor] Starting task: ${taskId}`, task);
+
+		if (task.type === 'TID_GET_MEDIAFILES_REQ') {
+			this.emit({
+				taskId: 'BROADCAST',
+				type: 'MEDIAFILES_LIST',
+				payload: mockList,
+			} as TaskProc.EventBroadcast);
+
+			return taskId;
+		}
 
 		const timeouts: ReturnType<typeof setTimeout>[] = [];
 
@@ -37,7 +49,7 @@ export class MockTaskProcessor {
 			this.emit({
 				taskId,
 				type: 'result',
-				payload: mockedSource,
+				payload: mockYouTube //mockedSource,
 			});
 			this.clearTask(taskId);
 		}, 9000));

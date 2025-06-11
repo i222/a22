@@ -32,18 +32,21 @@ app.whenReady().then(async () => {
 		const mainWindow = new BrowserWindow({
 			width: 800,
 			height: 600,
-			minWidth: 400,
+			minWidth: 642,
 			minHeight: 300,
+			title: 'A22 Media Files Manager',
 			webPreferences: {
 				// Enable preload script and isolate renderer from the main process
 				preload: path.join(__dirname, "preload/preload.js"),
 				contextIsolation: true,
 				webSecurity: false,
 				nodeIntegration: false,
+				devTools: true, // DEV
 				// sandbox: false // sandbox
 				// enableRemoteModule: false,
 			},
 		});
+
 		console.log("[Loading] mainWindow created");
 
 		// mainWindow.webContents.openDevTools({ mode: "right" });

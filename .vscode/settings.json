@@ -1,3 +1,25 @@
 {
-  "typescript.preferences.importModuleSpecifier": "relative"
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "workbench.colorCustomizations": {
+    "editor.background": "#FFF5F5", // Очень светлый красноватый фон
+    "editor.foreground": "#3B0000", // Темно-бордовый цвет текста
+    "editorCursor.foreground": "#B00020", // Красный курсор
+    "editor.lineHighlightBackground": "#FFE0E0", // Подсветка строки (розоватая)
+    "editor.selectionBackground": "#FFD6D6", // Цвет выделения текста
+    "editor.inactiveSelectionBackground": "#FFEAEA", // Для неактивных окон
+    "editorLineNumber.foreground": "#C08080", // Цвет номеров строк
+    "editorWhitespace.foreground": "#E8C0C0", // Цвет пробелов и табов
+    "sideBar.background": "#FFF0F0", // Фон боковой панели
+    "sideBar.foreground": "#624242", // Текст боковой панели
+    "activityBar.background": "#7e4c4c", // Верх боковой панели
+    "activityBar.foreground": "#fff8f8", // Иконки в бордовом
+    "statusBar.background": "#f0b1b1", // Строка состояния — розовая
+    "statusBar.foreground": "#400000", // Тёмно-красный текст
+    "titleBar.activeBackground": "#c45c5c", // Фон заголовка окна
+    "titleBar.activeForeground": "#fff0f0", // Текст заголовка окна
+    "tab.activeBackground": "#ffd8d8", // Активная вкладка — белая
+    "tab.inactiveBackground": "#faf5f5", // Неактивная вкладка — розоватая
+    "tab.activeForeground": "#600000", // Цвет текста активной вкладки
+    "tab.inactiveForeground": "#A06060" // Цвет текста неактивной вкладки
+  }
 }

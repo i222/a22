@@ -103,11 +103,10 @@ export async function mergeTracks(
 
 	console.log('[mergeTracks] ffmpeg args:', args);
 
-	const streamState: CLOutParsers.StreamState<CLOutParsers.MergeProgress> = {
+	const streamState: CLOutParsers.StreamState<CLOutParsers.ProgressDataFFmpeg> = {
 		buffer: '',
 		logs: [],
 	};
-	const parseMergeProgress = CLOutParsers.createMergeProgressParser();
 
 	const ffmpegResult = await spawnWithAbort(
 		path.join(A22_RUNTIME_DIR, 'ffmpeg'),
@@ -121,7 +120,7 @@ export async function mergeTracks(
 					emit,
 					streamState,
 					'Merging tracks',
-					parseMergeProgress
+					CLOutParsers.parseFfmpegProgressLine
 				);
 			},
 			onStderrData: (chunk) => {
@@ -131,7 +130,7 @@ export async function mergeTracks(
 					emit,
 					streamState,
 					'Merging tracks',
-					parseMergeProgress
+					CLOutParsers.parseFfmpegProgressLine
 				);
 			},
 		}
@@ -155,29 +154,31 @@ export async function mergeTracks(
 	console.log(`[mergeTracks] file dowloaded, size=${filesize(finFileSize)}`);
 
 	// Step 5: Request ffprobe info on final file and log output
-	try {
-		const ffprobeArgs = [
-			'-v', 'quiet',
-			'-print_format', 'json',
-			'-show_format',
-			'-show_streams',
-			finalFilePath,
-		];
+	//  DISABLED
+	// try {
+		// const ffprobeArgs = [
+		// 	'-v', 'quiet',
+		// 	'-print_format', 'json',
+		// 	'-show_format',
+		// 	'-show_streams',
+		// 	finalFilePath,
+		// ];
 
-		const ffprobeResult = await execFileWithAbort({
-			file: path.join(A22_RUNTIME_DIR, 'ffprobe'),
-			args: ffprobeArgs,
-			signal,
-		});
-		try {
-			const parsed = JSON.parse(ffprobeResult.stdout);
-			console.log('[mergeTracks] ffprobe output:', parsed);
-		} catch (e) {
-			console.log('[mergeTracks] ffprobe failed', e);
-		}
-	} catch (err) {
-		console.warn('[mergeTracks] ffprobe failed:', err);
-	}
+		// 	const ffprobeResult = await execFileWithAbort({
+		// 		file: path.join(A22_RUNTIME_DIR, 'ffprobe'),
+		// 		args: ffprobeArgs,
+		// 		signal,
+		// 	});
+
+		// 	try {
+		// 		const parsed = JSON.parse(ffprobeResult.stdout);
+		// 		console.log('[mergeTracks] ffprobe output:', parsed);
+		// 	} catch (e) {
+		// 		console.log('[mergeTracks] ffprobe failed', e);
+		// 	}
+	// } catch (err) {
+	// 	console.warn('[mergeTracks] ffprobe failed:', err);
+	// }
 
 	return finalFilePath;
 }
